@@ -73,6 +73,21 @@ python bench_qwen3_5.py --model /path/to/Qwen3.5-0.8B \
 
 The full reference report is available in [`benchmark_qwen3_5_3060.json`](benchmark_qwen3_5_3060.json). Performance varies by GPU, driver, CUDA, FlashAttention availability and workload.
 
+### RTX 4090: Larger-Model Validation
+
+This branch also includes a real server-side validation with the larger `Qwen/Qwen3.5-2B` model (2.5x the parameter count of the local 0.8B reference):
+
+- Hardware: NVIDIA GeForce RTX 4090 (GPU 1 on a shared server)
+- Software: PyTorch 2.6.0+cu124, FlashAttention 2.7.4, Transformers 5.15.0
+- Input / output: 512 prompt tokens / 16 generated tokens
+- KV compression: threshold 256, sink 32, recent window 64, recent queries 4, Top-K 64
+
+| TTFT (ms) | TPOT (ms) | Decode Throughput (tokens/s) | Peak KV Blocks | Peak KV Memory | Compression |
+|-----------|-----------|------------------------------|----------------|----------------|-------------|
+| 192.970   | 42.101    | 23.753                       | 3              | 9.0 MiB        | 1 run, 20.833 ms, 353 tokens reclaimed |
+
+The source report is [`benchmark_qwen3_5_2b_4090.json`](benchmark_qwen3_5_2b_4090.json). This was an eager-mode functional benchmark run while the shared GPUs had other workloads; treat it as a reproducibility record, not an isolated peak-performance claim.
+
 
 ## Star History
 

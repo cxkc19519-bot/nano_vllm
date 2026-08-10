@@ -1,0 +1,41 @@
+{
+  "benchmark": "nano-vllm-qwen3.5-hybrid",
+  "execution_mode": "eager",
+  "device": "NVIDIA GeForce RTX 4090",
+  "torch": "2.6.0+cu124",
+  "seed": 20260810,
+  "workload": {
+    "batch_size": 1,
+    "prompt_tokens_per_request": 512,
+    "output_tokens_per_request": 16
+  },
+  "metrics": {
+    "ttft_ms": 192.97,
+    "tpot_ms_per_decode_step": 42.101,
+    "decode_throughput_tokens_per_second": 23.753,
+    "decode_tokens_measured": 15
+  },
+  "kv_cache": {
+    "block_size_tokens": 256,
+    "total_blocks": 5774,
+    "peak_used_blocks": 3,
+    "peak_used_block_ratio": 0.00052,
+    "bytes_per_block": 3145728,
+    "peak_used_mib": 9.0,
+    "peak_physical_kv_tokens": 513
+  },
+  "compression": {
+    "count": 1,
+    "total_seconds": 0.02083344920538366,
+    "last_seconds": 0.02083344920538366,
+    "tokens_reclaimed": 353,
+    "skipped_no_free_blocks": 0
+  },
+  "compression_config": {
+    "threshold": 256,
+    "sink_tokens": 32,
+    "recent_window": 64,
+    "recent_queries": 4,
+    "top_k": 64
+  }
+}
