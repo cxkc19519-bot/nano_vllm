@@ -10,6 +10,8 @@
 
 A lightweight vLLM implementation built from scratch.
 
+中文文档：[README.zh-CN.md](README.zh-CN.md)
+
 ## Key Features
 
 * 🚀 **Fast offline inference** - Comparable inference speeds to vLLM
