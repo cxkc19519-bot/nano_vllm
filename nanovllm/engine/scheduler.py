@@ -15,6 +15,8 @@ class Scheduler:
         self.block_manager = BlockManager(config.num_kvcache_blocks, config.kvcache_block_size)
         self.waiting: deque[Sequence] = deque()
         self.running: deque[Sequence] = deque()
+        self.is_hybrid = config.model_type == "qwen3_5"
+        self.free_state_slots: deque[int] = deque(range(config.max_num_seqs))
 
     def is_finished(self):
         return not self.waiting and not self.running
@@ -29,12 +31,25 @@ class Scheduler:
         # prefill
         while self.waiting and len(scheduled_seqs) < self.max_num_seqs:
             seq = self.waiting[0]
+            allocated_state_slot = False
+            if self.is_hybrid and seq.state_slot is None:
+                if not self.free_state_slots:
+                    break
+                seq.state_slot = self.free_state_slots.popleft()
+                seq.state_needs_reset = True
+                allocated_state_slot = True
             remaining = self.max_num_batched_tokens - num_batched_tokens
             if remaining == 0:
                 break
             if not seq.block_table:
-                num_cached_blocks = self.block_manager.can_allocate(seq)
+                # Hybrid Prefix Cache also needs a snapshot of every DeltaNet
+                # state.  Until snapshots are implemented, do not reuse a
+                # Full-Attention-only prefix.
+                num_cached_blocks = 0 if self.is_hybrid else self.block_manager.can_allocate(seq)
                 if num_cached_blocks == -1:
+                    if allocated_state_slot:
+                        self.free_state_slots.append(seq.state_slot)
+                        seq.state_slot = None
                     break
                 num_tokens = seq.num_tokens - num_cached_blocks * self.block_size
             else:
@@ -76,12 +91,20 @@ class Scheduler:
         seq.status = SequenceStatus.WAITING
         seq.is_prefill = True
         self.block_manager.deallocate(seq)
+        if self.is_hybrid and seq.state_slot is not None:
+            self.free_state_slots.append(seq.state_slot)
+            seq.state_slot = None
+            seq.state_needs_reset = True
         self.waiting.appendleft(seq)
 
     def postprocess(self, seqs: list[Sequence], token_ids: list[int], is_prefill: bool):
         for seq, token_id in zip(seqs, token_ids):
             self.block_manager.hash_blocks(seq)
             seq.num_cached_tokens += seq.num_scheduled_tokens
+            seq.num_physical_kv_tokens += seq.num_scheduled_tokens
+            seq.kv_logical_indices.extend(
+                range(seq.num_cached_tokens - seq.num_scheduled_tokens, seq.num_cached_tokens)
+            )
             seq.num_scheduled_tokens = 0
             if is_prefill and seq.num_cached_tokens < seq.num_tokens:
                 continue
@@ -89,4 +112,8 @@ class Scheduler:
             if (not seq.ignore_eos and token_id == self.eos) or seq.num_completion_tokens == seq.max_tokens:
                 seq.status = SequenceStatus.FINISHED
                 self.block_manager.deallocate(seq)
+                if self.is_hybrid and seq.state_slot is not None:
+                    seq.released_state_slot = seq.state_slot
+                    self.free_state_slots.append(seq.state_slot)
+                    seq.state_slot = None
                 self.running.remove(seq)

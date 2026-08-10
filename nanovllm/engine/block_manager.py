@@ -90,6 +90,9 @@ class BlockManager:
         for i in range(num_cached_blocks, seq.num_blocks):
             seq.block_table.append(self._allocate_block())
         seq.num_cached_tokens = num_cached_blocks * self.block_size
+        seq.num_physical_kv_tokens = seq.num_cached_tokens
+        seq.kv_logical_indices = list(range(seq.num_cached_tokens))
+        seq.kv_is_compressed = False
 
     def deallocate(self, seq: Sequence):
         for block_id in reversed(seq.block_table):
@@ -98,16 +101,23 @@ class BlockManager:
             if block.ref_count == 0:
                 self._deallocate_block(block_id)
         seq.num_cached_tokens = 0
+        seq.num_physical_kv_tokens = 0
+        seq.kv_logical_indices = []
+        seq.kv_is_compressed = False
         seq.block_table.clear()
 
     def can_append(self, seq: Sequence) -> bool:
-        return len(self.free_block_ids) >= (len(seq) % self.block_size == 1)
+        return len(self.free_block_ids) >= (seq.num_physical_kv_tokens % self.block_size == 0)
 
     def may_append(self, seq: Sequence):
-        if len(seq) % self.block_size == 1:
+        if seq.num_physical_kv_tokens % self.block_size == 0:
             seq.block_table.append(self._allocate_block())
 
     def hash_blocks(self, seq: Sequence):
+        # A compressed cache is no longer a contiguous token prefix and must
+        # never be offered to prefix-cache lookup.
+        if seq.kv_is_compressed:
+            return
         start = seq.num_cached_tokens // self.block_size
         end = (seq.num_cached_tokens + seq.num_scheduled_tokens) // self.block_size
         if start == end: return

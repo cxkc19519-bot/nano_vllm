@@ -23,9 +23,16 @@ class Sequence:
         self.num_tokens = len(self.token_ids)
         self.num_prompt_tokens = len(token_ids)
         self.num_cached_tokens = 0
+        # num_cached_tokens is the logical number of tokens already executed.
+        # KV compression only changes the physical representation below.
+        self.num_physical_kv_tokens = 0
+        self.kv_logical_indices: list[int] = []
+        self.kv_is_compressed = False
         self.num_scheduled_tokens = 0
         self.is_prefill = True
         self.block_table = []
+        self.state_slot: int | None = None
+        self.state_needs_reset = True
         self.temperature = sampling_params.temperature
         self.max_tokens = sampling_params.max_tokens
         self.ignore_eos = sampling_params.ignore_eos
@@ -60,6 +67,10 @@ class Sequence:
     def last_block_num_tokens(self):
         return self.num_tokens - (self.num_blocks - 1) * self.block_size
 
+    @property
+    def num_physical_kv_blocks(self):
+        return (self.num_physical_kv_tokens + self.block_size - 1) // self.block_size
+
     def block(self, i):
         assert 0 <= i < self.num_blocks
         return self.token_ids[i*self.block_size: (i+1)*self.block_size]
@@ -71,10 +82,20 @@ class Sequence:
 
     def __getstate__(self):
         last_state = self.last_token if not self.is_prefill else self.token_ids
-        return (self.num_tokens, self.num_prompt_tokens, self.num_cached_tokens, self.num_scheduled_tokens, self.block_table, last_state)
+        return (
+            self.num_tokens, self.num_prompt_tokens, self.num_cached_tokens,
+            self.num_physical_kv_tokens, self.kv_logical_indices,
+            self.kv_is_compressed, self.num_scheduled_tokens, self.block_table,
+            self.state_slot, self.state_needs_reset, last_state,
+        )
 
     def __setstate__(self, state):
-        self.num_tokens, self.num_prompt_tokens, self.num_cached_tokens, self.num_scheduled_tokens, self.block_table, last_state = state
+        (
+            self.num_tokens, self.num_prompt_tokens, self.num_cached_tokens,
+            self.num_physical_kv_tokens, self.kv_logical_indices,
+            self.kv_is_compressed, self.num_scheduled_tokens, self.block_table,
+            self.state_slot, self.state_needs_reset, last_state,
+        ) = state
         if isinstance(last_state, list):
             self.token_ids = last_state
             self.last_token = self.token_ids[-1]
