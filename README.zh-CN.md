@@ -26,11 +26,11 @@ pip install -e .
 
 ## 下载模型
 
-例如下载官方 Qwen3.5-0.8B：
+例如下载本仓库测试使用的官方 Qwen3.5-2B：
 
 ```bash
-huggingface-cli download Qwen/Qwen3.5-0.8B \
-  --local-dir /path/to/Qwen3.5-0.8B
+hf download Qwen/Qwen3.5-2B \
+  --local-dir /path/to/Qwen3.5-2B
 ```
 
 ## 基本推理
@@ -39,7 +39,7 @@ huggingface-cli download Qwen/Qwen3.5-0.8B \
 from nanovllm import LLM, SamplingParams
 
 llm = LLM(
-    "/path/to/Qwen3.5-0.8B",
+    "/path/to/Qwen3.5-2B",
     enforce_eager=True,
     max_model_len=2048,
     max_num_seqs=4,
@@ -58,7 +58,7 @@ llm.exit()
 
 ```bash
 python bench_qwen3_5.py \
-  --model /path/to/Qwen3.5-0.8B \
+  --model /path/to/Qwen3.5-2B \
   --prompt-tokens 512 \
   --output-tokens 64 \
   --compress-threshold 512 \
@@ -77,7 +77,15 @@ python bench_qwen3_5.py \
 - `kv_cache.peak_used_blocks` / `peak_used_mib`：KV Block 的峰值占用。
 - `compression`：压缩次数、总耗时、回收 token 数，以及因没有足够临时 Block 而安全跳过的次数。
 
-仓库内的 [benchmark_qwen3_5_3060.json](benchmark_qwen3_5_3060.json) 是 RTX 3060 12GB 上的一次参考运行结果；实际性能会随 GPU、CUDA、FlashAttention、batch size 与模型版本变化。
+### RTX 4090 / Qwen3.5-2B 实测
+
+本仓库仅保留 RTX 4090 的测试记录：在共享服务器的 GPU 1 上，以 `Qwen/Qwen3.5-2B` 执行 512 输入 token / 16 输出 token 的 eager Benchmark。
+
+| TTFT | TPOT | Decode Throughput | KV Block 峰值 | KV 峰值显存 | 压缩结果 |
+|------|------|-------------------|---------------|-------------|----------|
+| 192.970 ms | 42.101 ms | 23.753 token/s | 3 | 9.0 MiB | 1 次，20.833 ms，回收 353 token |
+
+环境为 PyTorch 2.6.0+cu124、FlashAttention 2.7.4、Transformers 5.15.0。原始报告见 [benchmark_qwen3_5_2b_4090.json](benchmark_qwen3_5_2b_4090.json)。共享 GPU 同时有其他任务运行，因此该结果用于功能和可复现性记录，不代表隔离环境下的峰值性能。
 
 ## 当前边界
 

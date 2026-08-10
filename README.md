@@ -49,33 +49,9 @@ outputs[0]["text"]
 
 Use `bench_qwen3_5.py` to run a reproducible Qwen3.5 Hybrid benchmark. It measures TTFT, TPOT, Decode Throughput, KV Cache / Block usage, and KV compression time.
 
-**Reference Configuration (local machine):**
-- Hardware: NVIDIA GeForce RTX 3060 (12GB)
-- Model: Qwen/Qwen3.5-0.8B
-- Input / output: 512 prompt tokens / 16 generated tokens
-- Execution mode: eager PyTorch SDPA fallback on Windows (no native FlashAttention)
-- KV compression: threshold 256, sink 32, recent window 64, recent queries 4, Top-K 64
+### RTX 4090 / Qwen3.5-2B Validation
 
-**Measured Result:**
-| TTFT (ms) | TPOT (ms) | Decode Throughput (tokens/s) | Peak KV Blocks | Peak KV Memory | Compression |
-|-----------|-----------|------------------------------|----------------|----------------|-------------|
-| 183.910   | 44.564    | 22.440                       | 3              | 9.0 MiB        | 1 run, 32.712 ms, 353 tokens reclaimed |
-
-Reproduce the result with:
-
-```bash
-python bench_qwen3_5.py --model /path/to/Qwen3.5-0.8B \
-  --prompt-tokens 512 --output-tokens 16 --warmup 1 \
-  --max-model-len 1024 --max-batched-tokens 1024 --max-seqs 2 \
-  --compress-threshold 256 --sink-tokens 32 --recent-window 64 \
-  --recent-queries 4 --top-k 64 --output benchmark_qwen3_5.json
-```
-
-The full reference report is available in [`benchmark_qwen3_5_3060.json`](benchmark_qwen3_5_3060.json). Performance varies by GPU, driver, CUDA, FlashAttention availability and workload.
-
-### RTX 4090: Larger-Model Validation
-
-This branch also includes a real server-side validation with the larger `Qwen/Qwen3.5-2B` model (2.5x the parameter count of the local 0.8B reference):
+This repository contains only the RTX 4090 validation with the larger `Qwen/Qwen3.5-2B` model:
 
 - Hardware: NVIDIA GeForce RTX 4090 (GPU 1 on a shared server)
 - Software: PyTorch 2.6.0+cu124, FlashAttention 2.7.4, Transformers 5.15.0
@@ -85,6 +61,17 @@ This branch also includes a real server-side validation with the larger `Qwen/Qw
 | TTFT (ms) | TPOT (ms) | Decode Throughput (tokens/s) | Peak KV Blocks | Peak KV Memory | Compression |
 |-----------|-----------|------------------------------|----------------|----------------|-------------|
 | 192.970   | 42.101    | 23.753                       | 3              | 9.0 MiB        | 1 run, 20.833 ms, 353 tokens reclaimed |
+
+Reproduce the result with:
+
+```bash
+CUDA_VISIBLE_DEVICES=1 python bench_qwen3_5.py \
+  --model /path/to/Qwen3.5-2B \
+  --prompt-tokens 512 --output-tokens 16 --warmup 1 \
+  --max-model-len 1024 --max-batched-tokens 1024 --max-seqs 2 \
+  --compress-threshold 256 --sink-tokens 32 --recent-window 64 \
+  --recent-queries 4 --top-k 64 --output benchmark_qwen3_5_2b_4090.json
+```
 
 The source report is [`benchmark_qwen3_5_2b_4090.json`](benchmark_qwen3_5_2b_4090.json). This was an eager-mode functional benchmark run while the shared GPUs had other workloads; treat it as a reproducibility record, not an isolated peak-performance claim.
 
