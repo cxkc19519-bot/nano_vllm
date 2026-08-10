@@ -2,7 +2,7 @@
 
 一个从零实现的轻量级 vLLM 风格离线推理引擎。本分支在基础 Qwen3 支持之上，新增了 Qwen3.5 Hybrid 架构的运行时适配与可复现实验工具。
 
-[English README](README.md)
+[English](README.md) | [中文](README.zh-CN.md)
 
 ## 已实现能力
 
