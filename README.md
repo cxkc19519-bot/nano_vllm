@@ -47,20 +47,31 @@ outputs[0]["text"]
 
 ## Benchmark
 
-See `bench.py` for benchmark.
+Use `bench_qwen3_5.py` to run a reproducible Qwen3.5 Hybrid benchmark. It measures TTFT, TPOT, Decode Throughput, KV Cache / Block usage, and KV compression time.
 
-**Test Configuration:**
-- Hardware: RTX 4070 Laptop (8GB)
-- Model: Qwen3-0.6B
-- Total Requests: 256 sequences
-- Input Length: Randomly sampled between 100–1024 tokens
-- Output Length: Randomly sampled between 100–1024 tokens
+**Reference Configuration (local machine):**
+- Hardware: NVIDIA GeForce RTX 3060 (12GB)
+- Model: Qwen/Qwen3.5-0.8B
+- Input / output: 512 prompt tokens / 16 generated tokens
+- Execution mode: eager PyTorch SDPA fallback on Windows (no native FlashAttention)
+- KV compression: threshold 256, sink 32, recent window 64, recent queries 4, Top-K 64
 
-**Performance Results:**
-| Inference Engine | Output Tokens | Time (s) | Throughput (tokens/s) |
-|----------------|-------------|----------|-----------------------|
-| vLLM           | 133,966     | 98.37    | 1361.84               |
-| Nano-vLLM      | 133,966     | 93.41    | 1434.13               |
+**Measured Result:**
+| TTFT (ms) | TPOT (ms) | Decode Throughput (tokens/s) | Peak KV Blocks | Peak KV Memory | Compression |
+|-----------|-----------|------------------------------|----------------|----------------|-------------|
+| 183.910   | 44.564    | 22.440                       | 3              | 9.0 MiB        | 1 run, 32.712 ms, 353 tokens reclaimed |
+
+Reproduce the result with:
+
+```bash
+python bench_qwen3_5.py --model /path/to/Qwen3.5-0.8B \
+  --prompt-tokens 512 --output-tokens 16 --warmup 1 \
+  --max-model-len 1024 --max-batched-tokens 1024 --max-seqs 2 \
+  --compress-threshold 256 --sink-tokens 32 --recent-window 64 \
+  --recent-queries 4 --top-k 64 --output benchmark_qwen3_5.json
+```
+
+The full reference report is available in [`benchmark_qwen3_5_3060.json`](benchmark_qwen3_5_3060.json). Performance varies by GPU, driver, CUDA, FlashAttention availability and workload.
 
 
 ## Star History
