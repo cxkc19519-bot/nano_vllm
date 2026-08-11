@@ -1,7 +1,10 @@
 import unittest
 
+import torch
+
 from eval_longbench import choose_indices, f1_score, retrieval_score
 from eval_needle import repeat_to_length, wrap_as_chat_prompt
+from nanovllm.models.qwen3_5 import split_q_and_gate
 
 
 class QualityEvaluationHelpersTest(unittest.TestCase):
@@ -64,6 +67,13 @@ class QualityEvaluationHelpersTest(unittest.TestCase):
 
     def test_uniform_sample_indices(self):
         self.assertEqual(choose_indices(10, 3), [0, 4, 9])
+
+    def test_qwen3_5_q_and_gate_are_unpacked_per_head(self):
+        # Two heads, each serialized as [query_head, gate_head].
+        projected = torch.tensor([[1, 2, 10, 20, 3, 4, 30, 40]])
+        query, gate = split_q_and_gate(projected, num_heads=2, head_dim=2)
+        self.assertEqual(query.tolist(), [[1, 2, 3, 4]])
+        self.assertEqual(gate.tolist(), [[10, 20, 30, 40]])
 
 
 if __name__ == "__main__":

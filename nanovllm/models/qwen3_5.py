@@ -27,6 +27,27 @@ from nanovllm.layers.gated_deltanet import GatedDeltaNet
 from nanovllm.utils.context import get_context
 
 
+def split_q_and_gate(
+    q_with_gate: torch.Tensor,
+    num_heads: int,
+    head_dim: int,
+) -> tuple[torch.Tensor, torch.Tensor]:
+    """Unpack Qwen3.5's per-head interleaved query and output gate.
+
+    The checkpoint stores ``[q_head_0, gate_head_0, q_head_1, gate_head_1,
+    ...]``.  Splitting the flattened projection in half would instead mix the
+    gate of one head into the query of another head.
+    """
+    expected_width = num_heads * head_dim * 2
+    if q_with_gate.size(-1) != expected_width:
+        raise ValueError(
+            f"expected q_proj width {expected_width}, got {q_with_gate.size(-1)}"
+        )
+    per_head = q_with_gate.view(-1, num_heads, 2 * head_dim)
+    query, gate = per_head.chunk(2, dim=-1)
+    return query.flatten(1), gate.flatten(1)
+
+
 class Qwen3_5RMSNorm(nn.Module):
     """Qwen3.5 RMSNorm uses (1 + weight), unlike the Qwen3 variant."""
 
@@ -124,7 +145,10 @@ class Qwen3_5Attention(nn.Module):
         hidden_states: torch.Tensor,
     ) -> torch.Tensor:
         q_with_gate = self.q_proj(hidden_states)
-        q, gate = q_with_gate.split(self.q_size, dim=-1)
+        # The Q and output-gate vectors are interleaved *within each head* in
+        # the Qwen3.5 checkpoint, rather than laid out as one contiguous Q
+        # half followed by one contiguous gate half.
+        q, gate = split_q_and_gate(q_with_gate, self.num_heads, self.head_dim)
         k = self.k_proj(hidden_states)
         v = self.v_proj(hidden_states)
         q = q.view(-1, self.num_heads, self.head_dim)

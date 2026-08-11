@@ -50,7 +50,11 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--tensor-parallel-size", type=int, default=1)
     parser.add_argument("--contexts", type=comma_separated_ints, default=[2048, 4096, 8192])
     parser.add_argument("--depths", type=comma_separated_depths, default=[0.1, 0.5, 0.9])
-    parser.add_argument("--max-output-tokens", type=int, default=16)
+    # Retrieval keys can be split into more than 16 tokenizer pieces (for
+    # example around punctuation and digits).  Reserve enough budget to avoid
+    # marking an otherwise correct answer as a failed retrieval merely because
+    # it was truncated by the evaluator.
+    parser.add_argument("--max-output-tokens", type=int, default=32)
     parser.add_argument("--max-model-len", type=int, default=16384)
     parser.add_argument("--num-kvcache-blocks", type=int, default=128)
     parser.add_argument("--compress-threshold", type=int, default=1024)
