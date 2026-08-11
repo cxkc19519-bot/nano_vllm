@@ -22,15 +22,21 @@ class LLMEngine:
         self.config = config
         Sequence.block_size = config.kvcache_block_size
         self.ps = []
-        self.events = []
+        # Each tensor-parallel worker receives a command event and owns a
+        # separate completion event.  The completion acknowledgement keeps
+        # the shared-memory command buffer from being overwritten before the
+        # worker has finished consuming the previous request.
+        self.rpc_channels = []
         ctx = mp.get_context("spawn")
         for i in range(1, config.tensor_parallel_size):
-            event = ctx.Event()
-            process = ctx.Process(target=ModelRunner, args=(config, i, event))
+            command_event = ctx.Event()
+            completed_event = ctx.Event()
+            channel = (command_event, completed_event)
+            process = ctx.Process(target=ModelRunner, args=(config, i, channel))
             process.start()
             self.ps.append(process)
-            self.events.append(event)
-        self.model_runner = ModelRunner(config, 0, self.events)
+            self.rpc_channels.append(channel)
+        self.model_runner = ModelRunner(config, 0, self.rpc_channels)
         self.tokenizer = AutoTokenizer.from_pretrained(config.model, use_fast=True)
         config.eos = self.tokenizer.eos_token_id
         self.scheduler = Scheduler(config)

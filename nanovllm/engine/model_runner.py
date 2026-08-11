@@ -23,7 +23,7 @@ MODEL_REGISTRY = {
 
 class ModelRunner:
 
-    def __init__(self, config: Config, rank: int, event: Event | list[Event]):
+    def __init__(self, config: Config, rank: int, event: Event | tuple[Event, Event] | list[tuple[Event, Event]]):
         self.config = config
         hf_config = config.hf_config
         self.block_size = config.kvcache_block_size
@@ -33,7 +33,12 @@ class ModelRunner:
         self.enforce_eager = config.enforce_eager or not FLASH_ATTN_AVAILABLE
         self.world_size = config.tensor_parallel_size
         self.rank = rank
-        self.event = event
+        if self.world_size > 1:
+            if rank == 0:
+                self.command_events = [channel[0] for channel in event]
+                self.completed_events = [channel[1] for channel in event]
+            else:
+                self.command_event, self.completed_event = event
 
         backend = "nccl" if os.name != "nt" else "gloo"
         dist.init_process_group(backend, "tcp://localhost:2333", world_size=self.world_size, rank=rank)
@@ -73,7 +78,6 @@ class ModelRunner:
     def exit(self):
         if self.world_size > 1:
             self.shm.close()
-            dist.barrier()
             if self.rank == 0:
                 self.shm.unlink()
         if not self.enforce_eager:
@@ -84,42 +88,51 @@ class ModelRunner:
     def loop(self):
         while True:
             method_name, args = self.read_shm()
-            self.call(method_name, *args)
+            try:
+                self._invoke(method_name, *args)
+            finally:
+                # This is intentionally a multiprocessing Event rather than
+                # an NCCL barrier.  Long requests can have rank-local work
+                # with different durations; a barrier made the fast rank hit
+                # NCCL's watchdog even though the slow rank was still making
+                # progress.
+                self.completed_event.set()
             if method_name == "exit":
                 break
 
     def read_shm(self):
         assert self.world_size > 1 and self.rank > 0
-        self.event.wait()
+        self.command_event.wait()
         n = int.from_bytes(self.shm.buf[0:4], "little")
         method_name, *args = pickle.loads(self.shm.buf[4:n+4])
-        self.event.clear()
+        self.command_event.clear()
         return method_name, args
 
     def write_shm(self, method_name, *args):
         assert self.world_size > 1 and self.rank == 0
         data = pickle.dumps([method_name, *args])
         n = len(data)
+        for event in self.completed_events:
+            event.clear()
         self.shm.buf[0:4] = n.to_bytes(4, "little")
         self.shm.buf[4:n+4] = data
-        for event in self.event:
+        for event in self.command_events:
             event.set()
 
     def call(self, method_name, *args):
         if self.world_size > 1 and self.rank == 0:
             self.write_shm(method_name, *args)
-        method = getattr(self, method_name, None)
-        result = method(*args)
-        # Rank 0 serializes requests through a single shared-memory buffer.
-        # Without an acknowledgement, it can overwrite that buffer while a
-        # TP worker is still consuming the previous command (especially when
-        # compression adds compute_keep_indices/compact_kvcache calls between
-        # decode steps).  Synchronize every regular RPC so both ranks finish
-        # the same command before rank 0 publishes the next one.
-        # ``exit`` owns its own final barrier and destroys the process group.
-        if self.world_size > 1 and method_name != "exit":
-            dist.barrier()
+        result = self._invoke(method_name, *args)
+        if self.world_size > 1 and self.rank == 0:
+            for event in self.completed_events:
+                event.wait()
         return result
+
+    def _invoke(self, method_name, *args):
+        method = getattr(self, method_name, None)
+        if method is None:
+            raise AttributeError(f"unknown model-runner method: {method_name}")
+        return method(*args)
 
     def compute_keep_indices(self, seq: Sequence):
         return self.compressor.compute_keep_indices(seq)
