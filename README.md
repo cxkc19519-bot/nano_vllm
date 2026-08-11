@@ -49,31 +49,32 @@ outputs[0]["text"]
 
 Use `bench_qwen3_5.py` to run a reproducible Qwen3.5 Hybrid benchmark. It measures TTFT, TPOT, Decode Throughput, KV Cache / Block usage, and KV compression time.
 
-### RTX 4090 / Qwen3.5-2B Validation
+### RTX 4090 / Qwen3.5 Larger-Model Validation
 
-This repository contains only the RTX 4090 validation with the larger `Qwen/Qwen3.5-2B` model:
+This repository contains only RTX 4090 validation records, including `Qwen/Qwen3.5-2B` and the larger `Qwen/Qwen3.5-4B` model:
 
 - Hardware: NVIDIA GeForce RTX 4090 (GPU 1 on a shared server)
 - Software: PyTorch 2.6.0+cu124, FlashAttention 2.7.4, Transformers 5.15.0
 - Input / output: 512 prompt tokens / 16 generated tokens
 - KV compression: threshold 256, sink 32, recent window 64, recent queries 4, Top-K 64
 
-| TTFT (ms) | TPOT (ms) | Decode Throughput (tokens/s) | Peak KV Blocks | Peak KV Memory | Compression |
-|-----------|-----------|------------------------------|----------------|----------------|-------------|
-| 192.970   | 42.101    | 23.753                       | 3              | 9.0 MiB        | 1 run, 20.833 ms, 353 tokens reclaimed |
+| Model | TTFT (ms) | TPOT (ms) | Decode Throughput (tokens/s) | Peak KV Blocks | Peak KV Memory | Compression |
+|-------|-----------|-----------|------------------------------|----------------|----------------|-------------|
+| Qwen3.5-2B | 192.970 | 42.101 | 23.753 | 3 | 9.0 MiB | 1 run, 20.833 ms, 353 tokens reclaimed |
+| Qwen3.5-4B | 237.910 | 51.058 | 19.586 | 3 | 24.0 MiB | 1 run, 19.465 ms, 353 tokens reclaimed |
 
 Reproduce the result with:
 
 ```bash
 CUDA_VISIBLE_DEVICES=1 python bench_qwen3_5.py \
-  --model /path/to/Qwen3.5-2B \
+  --model /path/to/Qwen3.5-4B \
   --prompt-tokens 512 --output-tokens 16 --warmup 1 \
   --max-model-len 1024 --max-batched-tokens 1024 --max-seqs 2 \
   --compress-threshold 256 --sink-tokens 32 --recent-window 64 \
-  --recent-queries 4 --top-k 64 --output benchmark_qwen3_5_2b_4090.json
+  --recent-queries 4 --top-k 64 --output benchmark_qwen3_5_4b_4090.json
 ```
 
-The source report is [`benchmark_qwen3_5_2b_4090.json`](benchmark_qwen3_5_2b_4090.json). This was an eager-mode functional benchmark run while the shared GPUs had other workloads; treat it as a reproducibility record, not an isolated peak-performance claim.
+Source reports: [`benchmark_qwen3_5_2b_4090.json`](benchmark_qwen3_5_2b_4090.json) and [`benchmark_qwen3_5_4b_4090.json`](benchmark_qwen3_5_4b_4090.json). These were eager-mode functional benchmarks; treat them as reproducibility records, not isolated peak-performance claims.
 
 
 ## Star History
