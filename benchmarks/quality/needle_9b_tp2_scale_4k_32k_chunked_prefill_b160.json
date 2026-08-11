@@ -1,0 +1,680 @@
+{
+  "benchmark": "needle-in-a-haystack-qwen3.5-hybrid",
+  "model": "/home/user/jhk/models/Qwen3.5-9B",
+  "tensor_parallel_size": 2,
+  "contexts": [
+    4096,
+    8192,
+    16384,
+    32768
+  ],
+  "depths": [
+    0.1,
+    0.3,
+    0.5,
+    0.7,
+    0.9
+  ],
+  "max_batched_tokens": 8192,
+  "compression_config": {
+    "threshold": 2048,
+    "sink_tokens": 64,
+    "recent_window": 1024,
+    "recent_queries": 8,
+    "top_k": 512
+  },
+  "summary": {
+    "baseline": {
+      "cases": 20,
+      "correct": 20,
+      "accuracy": 1.0
+    },
+    "compressed": {
+      "cases": 20,
+      "correct": 20,
+      "accuracy": 1.0
+    }
+  },
+  "results": [
+    {
+      "mode": "baseline",
+      "target_context_tokens": 4096,
+      "actual_prompt_tokens": 3947,
+      "needle_depth": 0.1,
+      "expected_key": "needle-4096-10-20260810",
+      "prediction": "needle-4096-10-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 2.2206,
+      "compression": {
+        "count": 0,
+        "total_seconds": 0.0,
+        "tokens_reclaimed": 0,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "baseline",
+      "target_context_tokens": 4096,
+      "actual_prompt_tokens": 3947,
+      "needle_depth": 0.3,
+      "expected_key": "needle-4096-30-20260810",
+      "prediction": "needle-4096-30-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 1.9346,
+      "compression": {
+        "count": 0,
+        "total_seconds": 0.0,
+        "tokens_reclaimed": 0,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "baseline",
+      "target_context_tokens": 4096,
+      "actual_prompt_tokens": 3948,
+      "needle_depth": 0.5,
+      "expected_key": "needle-4096-50-20260810",
+      "prediction": "needle-4096-50-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 1.9352,
+      "compression": {
+        "count": 0,
+        "total_seconds": 0.0,
+        "tokens_reclaimed": 0,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "baseline",
+      "target_context_tokens": 4096,
+      "actual_prompt_tokens": 3947,
+      "needle_depth": 0.7,
+      "expected_key": "needle-4096-70-20260810",
+      "prediction": "needle-4096-70-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 1.935,
+      "compression": {
+        "count": 0,
+        "total_seconds": 0.0,
+        "tokens_reclaimed": 0,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "baseline",
+      "target_context_tokens": 4096,
+      "actual_prompt_tokens": 3947,
+      "needle_depth": 0.9,
+      "expected_key": "needle-4096-90-20260810",
+      "prediction": "needle-4096-90-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 1.9374,
+      "compression": {
+        "count": 0,
+        "total_seconds": 0.0,
+        "tokens_reclaimed": 0,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "baseline",
+      "target_context_tokens": 8192,
+      "actual_prompt_tokens": 7880,
+      "needle_depth": 0.1,
+      "expected_key": "needle-8192-10-20260810",
+      "prediction": "needle-8192-10-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 2.7605,
+      "compression": {
+        "count": 0,
+        "total_seconds": 0.0,
+        "tokens_reclaimed": 0,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "baseline",
+      "target_context_tokens": 8192,
+      "actual_prompt_tokens": 7880,
+      "needle_depth": 0.3,
+      "expected_key": "needle-8192-30-20260810",
+      "prediction": "needle-8192-30-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 2.7574,
+      "compression": {
+        "count": 0,
+        "total_seconds": 0.0,
+        "tokens_reclaimed": 0,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "baseline",
+      "target_context_tokens": 8192,
+      "actual_prompt_tokens": 7880,
+      "needle_depth": 0.5,
+      "expected_key": "needle-8192-50-20260810",
+      "prediction": "needle-8192-50-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 2.7574,
+      "compression": {
+        "count": 0,
+        "total_seconds": 0.0,
+        "tokens_reclaimed": 0,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "baseline",
+      "target_context_tokens": 8192,
+      "actual_prompt_tokens": 7880,
+      "needle_depth": 0.7,
+      "expected_key": "needle-8192-70-20260810",
+      "prediction": "needle-8192-70-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 2.7572,
+      "compression": {
+        "count": 0,
+        "total_seconds": 0.0,
+        "tokens_reclaimed": 0,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "baseline",
+      "target_context_tokens": 8192,
+      "actual_prompt_tokens": 7880,
+      "needle_depth": 0.9,
+      "expected_key": "needle-8192-90-20260810",
+      "prediction": "needle-8192-90-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 2.8283,
+      "compression": {
+        "count": 0,
+        "total_seconds": 0.0,
+        "tokens_reclaimed": 0,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "baseline",
+      "target_context_tokens": 16384,
+      "actual_prompt_tokens": 15744,
+      "needle_depth": 0.1,
+      "expected_key": "needle-16384-10-20260810",
+      "prediction": "needle-16384-10-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 4.5036,
+      "compression": {
+        "count": 0,
+        "total_seconds": 0.0,
+        "tokens_reclaimed": 0,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "baseline",
+      "target_context_tokens": 16384,
+      "actual_prompt_tokens": 15744,
+      "needle_depth": 0.3,
+      "expected_key": "needle-16384-30-20260810",
+      "prediction": "needle-16384-30-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 4.4834,
+      "compression": {
+        "count": 0,
+        "total_seconds": 0.0,
+        "tokens_reclaimed": 0,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "baseline",
+      "target_context_tokens": 16384,
+      "actual_prompt_tokens": 15744,
+      "needle_depth": 0.5,
+      "expected_key": "needle-16384-50-20260810",
+      "prediction": "needle-16384-50-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 4.4846,
+      "compression": {
+        "count": 0,
+        "total_seconds": 0.0,
+        "tokens_reclaimed": 0,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "baseline",
+      "target_context_tokens": 16384,
+      "actual_prompt_tokens": 15744,
+      "needle_depth": 0.7,
+      "expected_key": "needle-16384-70-20260810",
+      "prediction": "needle-16384-70-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 4.4826,
+      "compression": {
+        "count": 0,
+        "total_seconds": 0.0,
+        "tokens_reclaimed": 0,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "baseline",
+      "target_context_tokens": 16384,
+      "actual_prompt_tokens": 15744,
+      "needle_depth": 0.9,
+      "expected_key": "needle-16384-90-20260810",
+      "prediction": "needle-16384-90-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 4.48,
+      "compression": {
+        "count": 0,
+        "total_seconds": 0.0,
+        "tokens_reclaimed": 0,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "baseline",
+      "target_context_tokens": 32768,
+      "actual_prompt_tokens": 31473,
+      "needle_depth": 0.1,
+      "expected_key": "needle-32768-10-20260810",
+      "prediction": "needle-32768-10-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 7.9806,
+      "compression": {
+        "count": 0,
+        "total_seconds": 0.0,
+        "tokens_reclaimed": 0,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "baseline",
+      "target_context_tokens": 32768,
+      "actual_prompt_tokens": 31473,
+      "needle_depth": 0.3,
+      "expected_key": "needle-32768-30-20260810",
+      "prediction": "needle-32768-30-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 7.9923,
+      "compression": {
+        "count": 0,
+        "total_seconds": 0.0,
+        "tokens_reclaimed": 0,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "baseline",
+      "target_context_tokens": 32768,
+      "actual_prompt_tokens": 31472,
+      "needle_depth": 0.5,
+      "expected_key": "needle-32768-50-20260810",
+      "prediction": "needle-32768-50-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 7.994,
+      "compression": {
+        "count": 0,
+        "total_seconds": 0.0,
+        "tokens_reclaimed": 0,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "baseline",
+      "target_context_tokens": 32768,
+      "actual_prompt_tokens": 31473,
+      "needle_depth": 0.7,
+      "expected_key": "needle-32768-70-20260810",
+      "prediction": "needle-32768-70-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 7.996,
+      "compression": {
+        "count": 0,
+        "total_seconds": 0.0,
+        "tokens_reclaimed": 0,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "baseline",
+      "target_context_tokens": 32768,
+      "actual_prompt_tokens": 31473,
+      "needle_depth": 0.9,
+      "expected_key": "needle-32768-90-20260810",
+      "prediction": "needle-32768-90-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 7.9983,
+      "compression": {
+        "count": 0,
+        "total_seconds": 0.0,
+        "tokens_reclaimed": 0,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "compressed",
+      "target_context_tokens": 4096,
+      "actual_prompt_tokens": 3947,
+      "needle_depth": 0.1,
+      "expected_key": "needle-4096-10-20260810",
+      "prediction": "needle-4096-10-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 2.2376,
+      "compression": {
+        "count": 1,
+        "total_seconds": 0.03206611005589366,
+        "tokens_reclaimed": 2348,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "compressed",
+      "target_context_tokens": 4096,
+      "actual_prompt_tokens": 3947,
+      "needle_depth": 0.3,
+      "expected_key": "needle-4096-30-20260810",
+      "prediction": "needle-4096-30-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 1.9309,
+      "compression": {
+        "count": 1,
+        "total_seconds": 0.0038175489753484726,
+        "tokens_reclaimed": 2348,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "compressed",
+      "target_context_tokens": 4096,
+      "actual_prompt_tokens": 3948,
+      "needle_depth": 0.5,
+      "expected_key": "needle-4096-50-20260810",
+      "prediction": "needle-4096-50-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 1.9343,
+      "compression": {
+        "count": 1,
+        "total_seconds": 0.003883572993800044,
+        "tokens_reclaimed": 2349,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "compressed",
+      "target_context_tokens": 4096,
+      "actual_prompt_tokens": 3947,
+      "needle_depth": 0.7,
+      "expected_key": "needle-4096-70-20260810",
+      "prediction": "needle-4096-70-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 1.935,
+      "compression": {
+        "count": 1,
+        "total_seconds": 0.0038337900768965483,
+        "tokens_reclaimed": 2348,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "compressed",
+      "target_context_tokens": 4096,
+      "actual_prompt_tokens": 3947,
+      "needle_depth": 0.9,
+      "expected_key": "needle-4096-90-20260810",
+      "prediction": "needle-4096-90-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 1.9308,
+      "compression": {
+        "count": 1,
+        "total_seconds": 0.003777122823521495,
+        "tokens_reclaimed": 2348,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "compressed",
+      "target_context_tokens": 8192,
+      "actual_prompt_tokens": 7880,
+      "needle_depth": 0.1,
+      "expected_key": "needle-8192-10-20260810",
+      "prediction": "needle-8192-10-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 2.7598,
+      "compression": {
+        "count": 1,
+        "total_seconds": 0.005887181032449007,
+        "tokens_reclaimed": 6281,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "compressed",
+      "target_context_tokens": 8192,
+      "actual_prompt_tokens": 7880,
+      "needle_depth": 0.3,
+      "expected_key": "needle-8192-30-20260810",
+      "prediction": "needle-8192-30-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 2.7563,
+      "compression": {
+        "count": 1,
+        "total_seconds": 0.006038605002686381,
+        "tokens_reclaimed": 6281,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "compressed",
+      "target_context_tokens": 8192,
+      "actual_prompt_tokens": 7880,
+      "needle_depth": 0.5,
+      "expected_key": "needle-8192-50-20260810",
+      "prediction": "needle-8192-50-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 2.7576,
+      "compression": {
+        "count": 1,
+        "total_seconds": 0.0058931049425154924,
+        "tokens_reclaimed": 6281,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "compressed",
+      "target_context_tokens": 8192,
+      "actual_prompt_tokens": 7880,
+      "needle_depth": 0.7,
+      "expected_key": "needle-8192-70-20260810",
+      "prediction": "needle-8192-70-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 2.7619,
+      "compression": {
+        "count": 1,
+        "total_seconds": 0.005928326165303588,
+        "tokens_reclaimed": 6281,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "compressed",
+      "target_context_tokens": 8192,
+      "actual_prompt_tokens": 7880,
+      "needle_depth": 0.9,
+      "expected_key": "needle-8192-90-20260810",
+      "prediction": "needle-8192-90-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 2.7604,
+      "compression": {
+        "count": 1,
+        "total_seconds": 0.005881879013031721,
+        "tokens_reclaimed": 6281,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "compressed",
+      "target_context_tokens": 16384,
+      "actual_prompt_tokens": 15744,
+      "needle_depth": 0.1,
+      "expected_key": "needle-16384-10-20260810",
+      "prediction": "needle-16384-10-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 4.5066,
+      "compression": {
+        "count": 1,
+        "total_seconds": 0.028211981058120728,
+        "tokens_reclaimed": 14145,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "compressed",
+      "target_context_tokens": 16384,
+      "actual_prompt_tokens": 15744,
+      "needle_depth": 0.3,
+      "expected_key": "needle-16384-30-20260810",
+      "prediction": "needle-16384-30-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 4.4849,
+      "compression": {
+        "count": 1,
+        "total_seconds": 0.013237996958196163,
+        "tokens_reclaimed": 14145,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "compressed",
+      "target_context_tokens": 16384,
+      "actual_prompt_tokens": 15744,
+      "needle_depth": 0.5,
+      "expected_key": "needle-16384-50-20260810",
+      "prediction": "needle-16384-50-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 4.4894,
+      "compression": {
+        "count": 1,
+        "total_seconds": 0.013314043870195746,
+        "tokens_reclaimed": 14145,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "compressed",
+      "target_context_tokens": 16384,
+      "actual_prompt_tokens": 15744,
+      "needle_depth": 0.7,
+      "expected_key": "needle-16384-70-20260810",
+      "prediction": "needle-16384-70-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 4.4977,
+      "compression": {
+        "count": 1,
+        "total_seconds": 0.013367501087486744,
+        "tokens_reclaimed": 14145,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "compressed",
+      "target_context_tokens": 16384,
+      "actual_prompt_tokens": 15744,
+      "needle_depth": 0.9,
+      "expected_key": "needle-16384-90-20260810",
+      "prediction": "needle-16384-90-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 4.4909,
+      "compression": {
+        "count": 1,
+        "total_seconds": 0.01336339209228754,
+        "tokens_reclaimed": 14145,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "compressed",
+      "target_context_tokens": 32768,
+      "actual_prompt_tokens": 31473,
+      "needle_depth": 0.1,
+      "expected_key": "needle-32768-10-20260810",
+      "prediction": "needle-32768-10-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 8.0159,
+      "compression": {
+        "count": 1,
+        "total_seconds": 0.027504651807248592,
+        "tokens_reclaimed": 29874,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "compressed",
+      "target_context_tokens": 32768,
+      "actual_prompt_tokens": 31473,
+      "needle_depth": 0.3,
+      "expected_key": "needle-32768-30-20260810",
+      "prediction": "needle-32768-30-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 8.0133,
+      "compression": {
+        "count": 1,
+        "total_seconds": 0.027062369976192713,
+        "tokens_reclaimed": 29874,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "compressed",
+      "target_context_tokens": 32768,
+      "actual_prompt_tokens": 31472,
+      "needle_depth": 0.5,
+      "expected_key": "needle-32768-50-20260810",
+      "prediction": "needle-32768-50-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 8.0072,
+      "compression": {
+        "count": 1,
+        "total_seconds": 0.027158343931660056,
+        "tokens_reclaimed": 29873,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "compressed",
+      "target_context_tokens": 32768,
+      "actual_prompt_tokens": 31473,
+      "needle_depth": 0.7,
+      "expected_key": "needle-32768-70-20260810",
+      "prediction": "needle-32768-70-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 8.0151,
+      "compression": {
+        "count": 1,
+        "total_seconds": 0.027083870954811573,
+        "tokens_reclaimed": 29874,
+        "skipped_no_free_blocks": 0
+      }
+    },
+    {
+      "mode": "compressed",
+      "target_context_tokens": 32768,
+      "actual_prompt_tokens": 31473,
+      "needle_depth": 0.9,
+      "expected_key": "needle-32768-90-20260810",
+      "prediction": "needle-32768-90-20260810<|im_end|>",
+      "correct": true,
+      "elapsed_seconds": 8.0111,
+      "compression": {
+        "count": 1,
+        "total_seconds": 0.027180684031918645,
+        "tokens_reclaimed": 29874,
+        "skipped_no_free_blocks": 0
+      }
+    }
+  ]
+}

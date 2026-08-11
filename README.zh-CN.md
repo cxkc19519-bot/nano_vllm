@@ -81,6 +81,28 @@ CUDA_VISIBLE_DEVICES=0,1 /home/user/jhk/anaconda/envs/nano-vllm/bin/python eval_
 
 两类报告都会写入 `benchmarks/quality/`。解释压缩造成的质量变化前，必须先跑无压缩基线；如果基线连简单检索都失败，应先修复数值/生成正确性，不能把分数变化归因于 KV 压缩。
 
+#### 2×RTX 4090 长上下文实测
+
+Qwen3.5-9B 使用 TP=2，并将单次 Chunked Prefill 上限设为 8192 token。Needle 覆盖 4 种上下文长度和 5 个插入深度，共 20 个唯一用例、40 次基线/压缩对照生成；开启压缩后所有用例仍然正确。
+
+| 上下文 | 无压缩基线 | 开启压缩 | 物理 KV token 回收比例 | 平均压缩耗时 |
+|--------|------------|----------|-----------------------|--------------|
+| 4k | 5 / 5 | 5 / 5 | 59.49% | 9.48 ms |
+| 8k | 5 / 5 | 5 / 5 | 79.71% | 5.93 ms |
+| 16k | 5 / 5 | 5 / 5 | 89.84% | 16.30 ms |
+| 32k | 5 / 5 | 5 / 5 | 94.92% | 27.20 ms |
+
+LongBench-E 代表性子集包含 Qasper、HotpotQA 和 Passage Retrieval 三个任务，共 15 个唯一样本；每个样本分别运行无压缩和压缩版本，共 30 次推理。
+
+| 任务 | 基线分数 | 压缩分数 | 变化 | 物理 KV token 回收比例 | 平均压缩耗时 |
+|------|----------|----------|------|-----------------------|--------------|
+| Qasper | 56.19 | 55.50 | -0.69 个百分点 | 78.53% | 16.06 ms |
+| HotpotQA | 42.67 | 42.67 | 0.00 个百分点 | 84.36% | 9.07 ms |
+| Passage Retrieval | 100.00 | 100.00 | 0.00 个百分点 | 80.50% | 6.72 ms |
+| 整体 | 66.29 | 66.06 | -0.23 个百分点 | 81.46% | 10.62 ms |
+
+表中的比例表示压缩后回收的物理 KV token，不等同于峰值 GPU 显存降低比例。LongBench 数据是可复现的三任务子集，不能描述为完整 21 任务总分。原始报告见 [Needle 4k–32k](benchmarks/quality/needle_9b_tp2_scale_4k_32k_chunked_prefill_b160.json) 和 [LongBench-E 子集](benchmarks/quality/longbench_e_9b_tp2_scale_3tasks_5samples_chunked.json)。
+
 ```bash
 CUDA_VISIBLE_DEVICES=0,1 python bench_qwen3_5.py \
   --model /path/to/Qwen3.5-9B \

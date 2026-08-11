@@ -71,6 +71,28 @@ CUDA_VISIBLE_DEVICES=0,1 /home/user/jhk/anaconda/envs/nano-vllm/bin/python eval_
 
 Both scripts write JSON reports under `benchmarks/quality/`. Run a no-compression baseline before interpreting a quality delta. If the baseline fails simple retrieval, fix numerical/generation correctness before attributing a score change to KV compression.
 
+#### 2 x RTX 4090 Long-Context Results
+
+Qwen3.5-9B was evaluated with TP=2 and an 8,192-token Chunked Prefill budget. The Needle run covers four context lengths and five insertion depths, for 20 unique cases and 40 baseline/compressed generations. Every case remained correct after compression.
+
+| Context | Baseline | Compressed | Physical KV tokens reclaimed | Mean compression time |
+|---------|----------|------------|------------------------------|-----------------------|
+| 4k | 5 / 5 | 5 / 5 | 59.49% | 9.48 ms |
+| 8k | 5 / 5 | 5 / 5 | 79.71% | 5.93 ms |
+| 16k | 5 / 5 | 5 / 5 | 89.84% | 16.30 ms |
+| 32k | 5 / 5 | 5 / 5 | 94.92% | 27.20 ms |
+
+The LongBench-E representative subset contains 15 unique samples from Qasper, HotpotQA, and Passage Retrieval, each evaluated with compression disabled and enabled (30 generations total).
+
+| Task | Baseline score | Compressed score | Delta | Physical KV tokens reclaimed | Mean compression time |
+|------|----------------|------------------|-------|------------------------------|-----------------------|
+| Qasper | 56.19 | 55.50 | -0.69 pt | 78.53% | 16.06 ms |
+| HotpotQA | 42.67 | 42.67 | 0.00 pt | 84.36% | 9.07 ms |
+| Passage Retrieval | 100.00 | 100.00 | 0.00 pt | 80.50% | 6.72 ms |
+| Overall | 66.29 | 66.06 | -0.23 pt | 81.46% | 10.62 ms |
+
+These percentages describe reclaimed physical KV tokens after compaction, not peak allocated GPU memory. The LongBench result is a reproducible three-task subset rather than the full 21-task benchmark. Source reports: [Needle 4k–32k](benchmarks/quality/needle_9b_tp2_scale_4k_32k_chunked_prefill_b160.json) and [LongBench-E subset](benchmarks/quality/longbench_e_9b_tp2_scale_3tasks_5samples_chunked.json).
+
 ### RTX 4090 / Qwen3.5 Larger-Model Validation
 
 This repository contains only RTX 4090 validation records. The `Qwen/Qwen3.5-9B` run uses tensor parallelism across two RTX 4090 GPUs; the earlier 2B and 4B runs use one RTX 4090.

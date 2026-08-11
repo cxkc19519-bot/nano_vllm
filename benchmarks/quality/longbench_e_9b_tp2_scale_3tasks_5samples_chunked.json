@@ -1,0 +1,655 @@
+{
+  "benchmark": "LongBench-E official-subset",
+  "source": "THUDM/LongBench LongBench-E",
+  "model": "/home/user/jhk/models/Qwen3.5-9B",
+  "tensor_parallel_size": 2,
+  "tasks": [
+    "qasper",
+    "hotpotqa",
+    "passage_retrieval_en"
+  ],
+  "max_samples_per_task": 5,
+  "data_root": "/home/user/jhk/datasets/LongBench",
+  "max_input_tokens": 16384,
+  "max_batched_tokens": 8192,
+  "summary": {
+    "baseline": {
+      "hotpotqa": {
+        "samples": 5,
+        "score_percent": 42.67
+      },
+      "passage_retrieval_en": {
+        "samples": 5,
+        "score_percent": 100.0
+      },
+      "qasper": {
+        "samples": 5,
+        "score_percent": 56.19
+      }
+    },
+    "compressed": {
+      "hotpotqa": {
+        "samples": 5,
+        "score_percent": 42.67
+      },
+      "passage_retrieval_en": {
+        "samples": 5,
+        "score_percent": 100.0
+      },
+      "qasper": {
+        "samples": 5,
+        "score_percent": 55.5
+      }
+    }
+  },
+  "results": [
+    {
+      "mode": "baseline",
+      "task": "qasper",
+      "longbench_e_index": 0,
+      "sample_id": "b26174d8ec97e8d01421548d3a640e8382db6235eb506661",
+      "source_prompt_tokens": 4519,
+      "actual_prompt_tokens": 4531,
+      "middle_truncated": false,
+      "prediction": "FoxNews, CNN, ESPN, New York Times, Time magazine, Huffington Post Weird News, The Guardian, Cartoon Network, Cooking Light, Home Cooking Adventure, Justin Bieber, Nickelodeon, Spongebob, Disney.<|im_end|>",
+      "answers": [
+        "FoxNews, CNN, ESPN, New York Times, Time magazine, Huffington Post Weird News, The Guardian, Cartoon Network, Cooking Light, Home Cooking Adventure, Justin Bieber, Nickelodeon, Spongebob, Disney",
+        "FoxNews, CNN, ESPN, New York Times, Time magazine, Huffington Post Weird News, The Guardian, Cartoon Network, Cooking Light, Home Cooking Adventure, Justin Bieber, Nickelodeon, Spongebob, Disney."
+      ],
+      "score": 0.96,
+      "elapsed_seconds": 4.3452,
+      "compression": {
+        "count": 0,
+        "total_seconds": 0.0,
+        "tokens_reclaimed": 0
+      }
+    },
+    {
+      "mode": "baseline",
+      "task": "qasper",
+      "longbench_e_index": 56,
+      "sample_id": "181a2d144f719517ed2033408c263c328c3c7eb9cddc78c6",
+      "source_prompt_tokens": 3210,
+      "actual_prompt_tokens": 3222,
+      "middle_truncated": false,
+      "prediction": "LSTM<|im_end|>",
+      "answers": [
+        "LSTM",
+        "LSTM"
+      ],
+      "score": 0.0,
+      "elapsed_seconds": 0.9119,
+      "compression": {
+        "count": 0,
+        "total_seconds": 0.0,
+        "tokens_reclaimed": 0
+      }
+    },
+    {
+      "mode": "baseline",
+      "task": "qasper",
+      "longbench_e_index": 112,
+      "sample_id": "fbc4a45ff813e0a9578becabc2079b8da6de5193d5827cd9",
+      "source_prompt_tokens": 7099,
+      "actual_prompt_tokens": 7111,
+      "middle_truncated": false,
+      "prediction": "To further constrain the model on the data structure in order to prevent inaccurate or contradictory descriptions.<|im_end|>",
+      "answers": [
+        "rther constrain the model on the data structure in order to prevent inaccurate of even contradictory descriptions",
+        "to further constrain the model on the data structure in order to prevent inaccurate of even contradictory descriptions"
+      ],
+      "score": 0.8387096774193549,
+      "elapsed_seconds": 2.6072,
+      "compression": {
+        "count": 0,
+        "total_seconds": 0.0,
+        "tokens_reclaimed": 0
+      }
+    },
+    {
+      "mode": "baseline",
+      "task": "qasper",
+      "longbench_e_index": 167,
+      "sample_id": "1d74cf15feae9302442102605c3838418f99b746b992ae00",
+      "source_prompt_tokens": 5964,
+      "actual_prompt_tokens": 5976,
+      "middle_truncated": false,
+      "prediction": "Through crowdsourcing on Amazon Mechanical Turk.<|im_end|>",
+      "answers": [
+        "The data was collected using 3 components: describe a series of pilot studies that were conducted to collect commonsense inference questions, then discuss the resulting data collection of questions, texts and answers via crowdsourcing on Amazon Mechanical Turk and gives information about some necessary postprocessing steps and the dataset validation."
+      ],
+      "score": 0.15384615384615383,
+      "elapsed_seconds": 1.8154,
+      "compression": {
+        "count": 0,
+        "total_seconds": 0.0,
+        "tokens_reclaimed": 0
+      }
+    },
+    {
+      "mode": "baseline",
+      "task": "qasper",
+      "longbench_e_index": 223,
+      "sample_id": "6fd8cd7777d0b6f36ccdfc044d9b5056e519fd11feb2a750",
+      "source_prompt_tokens": 21831,
+      "actual_prompt_tokens": 16396,
+      "middle_truncated": true,
+      "prediction": "Mandarin, Russian, French, Kiswahili, Welsh, Yue Chinese, Finnish, Spanish, Estonian, Polish, Hebrew, and English.<|im_end|>",
+      "answers": [
+        "Chinese Mandarin, Welsh, English, Estonian, Finnish, French, Hebrew, Polish, Russian, Spanish, Kiswahili, Yue Chinese",
+        "Chinese Mandarin, Welsh, English, Estonian, Finnish, French, Hebrew, Polish, Russian, Spanish, Kiswahili, Yue Chinese"
+      ],
+      "score": 0.8571428571428571,
+      "elapsed_seconds": 5.5468,
+      "compression": {
+        "count": 0,
+        "total_seconds": 0.0,
+        "tokens_reclaimed": 0
+      }
+    },
+    {
+      "mode": "baseline",
+      "task": "hotpotqa",
+      "longbench_e_index": 0,
+      "sample_id": "1dae9ec530a93f43f85bd215a5c0e6737dbcf226cd3541d8",
+      "source_prompt_tokens": 6398,
+      "actual_prompt_tokens": 6410,
+      "middle_truncated": false,
+      "prediction": "Yanzhou District<|im_end|>",
+      "answers": [
+        "Yanzhou"
+      ],
+      "score": 0.6666666666666666,
+      "elapsed_seconds": 1.6881,
+      "compression": {
+        "count": 0,
+        "total_seconds": 0.0,
+        "tokens_reclaimed": 0
+      }
+    },
+    {
+      "mode": "baseline",
+      "task": "hotpotqa",
+      "longbench_e_index": 75,
+      "sample_id": "3cdadb5be4ed28de045f8fc2e382909260a2b70ff26884cb",
+      "source_prompt_tokens": 5144,
+      "actual_prompt_tokens": 5156,
+      "middle_truncated": false,
+      "prediction": "Professional tennis player<|im_end|>",
+      "answers": [
+        "professional tennis player."
+      ],
+      "score": 0.6666666666666666,
+      "elapsed_seconds": 1.372,
+      "compression": {
+        "count": 0,
+        "total_seconds": 0.0,
+        "tokens_reclaimed": 0
+      }
+    },
+    {
+      "mode": "baseline",
+      "task": "hotpotqa",
+      "longbench_e_index": 150,
+      "sample_id": "53ece48014dc927d7323861f5ae124b12d85aef7167fd61e",
+      "source_prompt_tokens": 7801,
+      "actual_prompt_tokens": 7813,
+      "middle_truncated": false,
+      "prediction": "filibuster<|im_end|>",
+      "answers": [
+        "filibuster"
+      ],
+      "score": 0.0,
+      "elapsed_seconds": 1.9232,
+      "compression": {
+        "count": 0,
+        "total_seconds": 0.0,
+        "tokens_reclaimed": 0
+      }
+    },
+    {
+      "mode": "baseline",
+      "task": "hotpotqa",
+      "longbench_e_index": 224,
+      "sample_id": "7eeac03a7906c808eba81e4f6bfa8deb4cae65f10134c0a8",
+      "source_prompt_tokens": 15328,
+      "actual_prompt_tokens": 15340,
+      "middle_truncated": false,
+      "prediction": "Between the 8th and 16th centuries<|im_end|>",
+      "answers": [
+        "between the 8th and 16th centuries"
+      ],
+      "score": 0.8000000000000002,
+      "elapsed_seconds": 3.9611,
+      "compression": {
+        "count": 0,
+        "total_seconds": 0.0,
+        "tokens_reclaimed": 0
+      }
+    },
+    {
+      "mode": "baseline",
+      "task": "hotpotqa",
+      "longbench_e_index": 299,
+      "sample_id": "e8d216d8aacd34ecc573741090194f0f0e5762918c9856c4",
+      "source_prompt_tokens": 16896,
+      "actual_prompt_tokens": 16396,
+      "middle_truncated": true,
+      "prediction": "Jiminy Cricket<|im_end|>",
+      "answers": [
+        "Figaro"
+      ],
+      "score": 0.0,
+      "elapsed_seconds": 3.9656,
+      "compression": {
+        "count": 0,
+        "total_seconds": 0.0,
+        "tokens_reclaimed": 0
+      }
+    },
+    {
+      "mode": "baseline",
+      "task": "passage_retrieval_en",
+      "longbench_e_index": 0,
+      "sample_id": "f363b5cfe63d7095514d7273aaa2e31dbfa73f10a71fd7d8",
+      "source_prompt_tokens": 4657,
+      "actual_prompt_tokens": 4668,
+      "middle_truncated": false,
+      "prediction": "Paragraph 6<|im_end|>",
+      "answers": [
+        "Paragraph 6"
+      ],
+      "score": 1.0,
+      "elapsed_seconds": 1.2635,
+      "compression": {
+        "count": 0,
+        "total_seconds": 0.0,
+        "tokens_reclaimed": 0
+      }
+    },
+    {
+      "mode": "baseline",
+      "task": "passage_retrieval_en",
+      "longbench_e_index": 75,
+      "sample_id": "ea5586b6e23b0aa0e9fe7b18cfb767310a0f674b8cc50728",
+      "source_prompt_tokens": 4471,
+      "actual_prompt_tokens": 4482,
+      "middle_truncated": false,
+      "prediction": "Paragraph 5<|im_end|>",
+      "answers": [
+        "Paragraph 5"
+      ],
+      "score": 1.0,
+      "elapsed_seconds": 1.2349,
+      "compression": {
+        "count": 0,
+        "total_seconds": 0.0,
+        "tokens_reclaimed": 0
+      }
+    },
+    {
+      "mode": "baseline",
+      "task": "passage_retrieval_en",
+      "longbench_e_index": 150,
+      "sample_id": "51b2970c7f18c673ba7cd30ddf4f04217f12e1daa65fa87d",
+      "source_prompt_tokens": 5560,
+      "actual_prompt_tokens": 5571,
+      "middle_truncated": false,
+      "prediction": "Paragraph 4<|im_end|>",
+      "answers": [
+        "Paragraph 4"
+      ],
+      "score": 1.0,
+      "elapsed_seconds": 1.4599,
+      "compression": {
+        "count": 0,
+        "total_seconds": 0.0,
+        "tokens_reclaimed": 0
+      }
+    },
+    {
+      "mode": "baseline",
+      "task": "passage_retrieval_en",
+      "longbench_e_index": 224,
+      "sample_id": "ae58b22e9648e7f5daebad76cdb8c58831243ba861b55a65",
+      "source_prompt_tokens": 13274,
+      "actual_prompt_tokens": 13285,
+      "middle_truncated": false,
+      "prediction": "Paragraph 7<|im_end|>",
+      "answers": [
+        "Paragraph 7"
+      ],
+      "score": 1.0,
+      "elapsed_seconds": 3.0061,
+      "compression": {
+        "count": 0,
+        "total_seconds": 0.0,
+        "tokens_reclaimed": 0
+      }
+    },
+    {
+      "mode": "baseline",
+      "task": "passage_retrieval_en",
+      "longbench_e_index": 299,
+      "sample_id": "3f222fd481265de0c5a8ff816cd0b78ac6dd5bad24d6c062",
+      "source_prompt_tokens": 12978,
+      "actual_prompt_tokens": 12989,
+      "middle_truncated": false,
+      "prediction": "Paragraph 3<|im_end|>",
+      "answers": [
+        "Paragraph 3"
+      ],
+      "score": 1.0,
+      "elapsed_seconds": 2.9563,
+      "compression": {
+        "count": 0,
+        "total_seconds": 0.0,
+        "tokens_reclaimed": 0
+      }
+    },
+    {
+      "mode": "compressed",
+      "task": "qasper",
+      "longbench_e_index": 0,
+      "sample_id": "b26174d8ec97e8d01421548d3a640e8382db6235eb506661",
+      "source_prompt_tokens": 4519,
+      "actual_prompt_tokens": 4531,
+      "middle_truncated": false,
+      "prediction": "FoxNews, CNN, ESPN, New York Times, Time magazine, Huffington Post Weird News, The Guardian, Cartoon Network, Cooking Light, Home Cooking Adventure, Justin Bieber, Nickelodeon, Spongebob, Disney.<|im_end|>",
+      "answers": [
+        "FoxNews, CNN, ESPN, New York Times, Time magazine, Huffington Post Weird News, The Guardian, Cartoon Network, Cooking Light, Home Cooking Adventure, Justin Bieber, Nickelodeon, Spongebob, Disney",
+        "FoxNews, CNN, ESPN, New York Times, Time magazine, Huffington Post Weird News, The Guardian, Cartoon Network, Cooking Light, Home Cooking Adventure, Justin Bieber, Nickelodeon, Spongebob, Disney."
+      ],
+      "score": 0.96,
+      "elapsed_seconds": 4.652,
+      "compression": {
+        "count": 1,
+        "total_seconds": 0.05031185387633741,
+        "tokens_reclaimed": 2932
+      }
+    },
+    {
+      "mode": "compressed",
+      "task": "qasper",
+      "longbench_e_index": 56,
+      "sample_id": "181a2d144f719517ed2033408c263c328c3c7eb9cddc78c6",
+      "source_prompt_tokens": 3210,
+      "actual_prompt_tokens": 3222,
+      "middle_truncated": false,
+      "prediction": "LSTM<|im_end|>",
+      "answers": [
+        "LSTM",
+        "LSTM"
+      ],
+      "score": 0.0,
+      "elapsed_seconds": 0.9261,
+      "compression": {
+        "count": 1,
+        "total_seconds": 0.0039043580181896687,
+        "tokens_reclaimed": 1623
+      }
+    },
+    {
+      "mode": "compressed",
+      "task": "qasper",
+      "longbench_e_index": 112,
+      "sample_id": "fbc4a45ff813e0a9578becabc2079b8da6de5193d5827cd9",
+      "source_prompt_tokens": 7099,
+      "actual_prompt_tokens": 7111,
+      "middle_truncated": false,
+      "prediction": "To further constrain the model on the data structure in order to prevent inaccurate or even contradictory descriptions.<|im_end|>",
+      "answers": [
+        "rther constrain the model on the data structure in order to prevent inaccurate of even contradictory descriptions",
+        "to further constrain the model on the data structure in order to prevent inaccurate of even contradictory descriptions"
+      ],
+      "score": 0.875,
+      "elapsed_seconds": 2.7048,
+      "compression": {
+        "count": 1,
+        "total_seconds": 0.005613984074443579,
+        "tokens_reclaimed": 5512
+      }
+    },
+    {
+      "mode": "compressed",
+      "task": "qasper",
+      "longbench_e_index": 167,
+      "sample_id": "1d74cf15feae9302442102605c3838418f99b746b992ae00",
+      "source_prompt_tokens": 5964,
+      "actual_prompt_tokens": 5976,
+      "middle_truncated": false,
+      "prediction": "The data was collected through crowdsourcing on Amazon Mechanical Turk, where workers independently created narrative texts based on script scenarios and formulated multiple-choice questions without seeing the full texts beforehand.<|im_end|>",
+      "answers": [
+        "The data was collected using 3 components: describe a series of pilot studies that were conducted to collect commonsense inference questions, then discuss the resulting data collection of questions, texts and answers via crowdsourcing on Amazon Mechanical Turk and gives information about some necessary postprocessing steps and the dataset validation."
+      ],
+      "score": 0.2972972972972973,
+      "elapsed_seconds": 4.1456,
+      "compression": {
+        "count": 1,
+        "total_seconds": 0.006109107052907348,
+        "tokens_reclaimed": 4377
+      }
+    },
+    {
+      "mode": "compressed",
+      "task": "qasper",
+      "longbench_e_index": 223,
+      "sample_id": "6fd8cd7777d0b6f36ccdfc044d9b5056e519fd11feb2a750",
+      "source_prompt_tokens": 21831,
+      "actual_prompt_tokens": 16396,
+      "middle_truncated": true,
+      "prediction": "Mandarin, Russian, French, Kiswahili, Welsh, Yue Chinese, German, Italian, Hebrew, Croatian, Finnish, and Spanish.<|im_end|>",
+      "answers": [
+        "Chinese Mandarin, Welsh, English, Estonian, Finnish, French, Hebrew, Polish, Russian, Spanish, Kiswahili, Yue Chinese",
+        "Chinese Mandarin, Welsh, English, Estonian, Finnish, French, Hebrew, Polish, Russian, Spanish, Kiswahili, Yue Chinese"
+      ],
+      "score": 0.6428571428571429,
+      "elapsed_seconds": 5.6566,
+      "compression": {
+        "count": 1,
+        "total_seconds": 0.014361290959641337,
+        "tokens_reclaimed": 14797
+      }
+    },
+    {
+      "mode": "compressed",
+      "task": "hotpotqa",
+      "longbench_e_index": 0,
+      "sample_id": "1dae9ec530a93f43f85bd215a5c0e6737dbcf226cd3541d8",
+      "source_prompt_tokens": 6398,
+      "actual_prompt_tokens": 6410,
+      "middle_truncated": false,
+      "prediction": "Yanzhou District<|im_end|>",
+      "answers": [
+        "Yanzhou"
+      ],
+      "score": 0.6666666666666666,
+      "elapsed_seconds": 2.4706,
+      "compression": {
+        "count": 1,
+        "total_seconds": 0.007769002113491297,
+        "tokens_reclaimed": 4811
+      }
+    },
+    {
+      "mode": "compressed",
+      "task": "hotpotqa",
+      "longbench_e_index": 75,
+      "sample_id": "3cdadb5be4ed28de045f8fc2e382909260a2b70ff26884cb",
+      "source_prompt_tokens": 5144,
+      "actual_prompt_tokens": 5156,
+      "middle_truncated": false,
+      "prediction": "Professional tennis player<|im_end|>",
+      "answers": [
+        "professional tennis player."
+      ],
+      "score": 0.6666666666666666,
+      "elapsed_seconds": 1.7129,
+      "compression": {
+        "count": 1,
+        "total_seconds": 0.004286527168005705,
+        "tokens_reclaimed": 3557
+      }
+    },
+    {
+      "mode": "compressed",
+      "task": "hotpotqa",
+      "longbench_e_index": 150,
+      "sample_id": "53ece48014dc927d7323861f5ae124b12d85aef7167fd61e",
+      "source_prompt_tokens": 7801,
+      "actual_prompt_tokens": 7813,
+      "middle_truncated": false,
+      "prediction": "filibuster<|im_end|>",
+      "answers": [
+        "filibuster"
+      ],
+      "score": 0.0,
+      "elapsed_seconds": 1.9411,
+      "compression": {
+        "count": 1,
+        "total_seconds": 0.006108321947976947,
+        "tokens_reclaimed": 6214
+      }
+    },
+    {
+      "mode": "compressed",
+      "task": "hotpotqa",
+      "longbench_e_index": 224,
+      "sample_id": "7eeac03a7906c808eba81e4f6bfa8deb4cae65f10134c0a8",
+      "source_prompt_tokens": 15328,
+      "actual_prompt_tokens": 15340,
+      "middle_truncated": false,
+      "prediction": "between the 8th and 16th centuries<|im_end|>",
+      "answers": [
+        "between the 8th and 16th centuries"
+      ],
+      "score": 0.8000000000000002,
+      "elapsed_seconds": 3.9773,
+      "compression": {
+        "count": 1,
+        "total_seconds": 0.013100371928885579,
+        "tokens_reclaimed": 13741
+      }
+    },
+    {
+      "mode": "compressed",
+      "task": "hotpotqa",
+      "longbench_e_index": 299,
+      "sample_id": "e8d216d8aacd34ecc573741090194f0f0e5762918c9856c4",
+      "source_prompt_tokens": 16896,
+      "actual_prompt_tokens": 16396,
+      "middle_truncated": true,
+      "prediction": "Jiminy Cricket<|im_end|>",
+      "answers": [
+        "Figaro"
+      ],
+      "score": 0.0,
+      "elapsed_seconds": 3.9872,
+      "compression": {
+        "count": 1,
+        "total_seconds": 0.014080687193199992,
+        "tokens_reclaimed": 14797
+      }
+    },
+    {
+      "mode": "compressed",
+      "task": "passage_retrieval_en",
+      "longbench_e_index": 0,
+      "sample_id": "f363b5cfe63d7095514d7273aaa2e31dbfa73f10a71fd7d8",
+      "source_prompt_tokens": 4657,
+      "actual_prompt_tokens": 4668,
+      "middle_truncated": false,
+      "prediction": "Paragraph 6<|im_end|>",
+      "answers": [
+        "Paragraph 6"
+      ],
+      "score": 1.0,
+      "elapsed_seconds": 1.2765,
+      "compression": {
+        "count": 1,
+        "total_seconds": 0.004302665125578642,
+        "tokens_reclaimed": 3069
+      }
+    },
+    {
+      "mode": "compressed",
+      "task": "passage_retrieval_en",
+      "longbench_e_index": 75,
+      "sample_id": "ea5586b6e23b0aa0e9fe7b18cfb767310a0f674b8cc50728",
+      "source_prompt_tokens": 4471,
+      "actual_prompt_tokens": 4482,
+      "middle_truncated": false,
+      "prediction": "Paragraph 5<|im_end|>",
+      "answers": [
+        "Paragraph 5"
+      ],
+      "score": 1.0,
+      "elapsed_seconds": 1.2404,
+      "compression": {
+        "count": 1,
+        "total_seconds": 0.003888837993144989,
+        "tokens_reclaimed": 2883
+      }
+    },
+    {
+      "mode": "compressed",
+      "task": "passage_retrieval_en",
+      "longbench_e_index": 150,
+      "sample_id": "51b2970c7f18c673ba7cd30ddf4f04217f12e1daa65fa87d",
+      "source_prompt_tokens": 5560,
+      "actual_prompt_tokens": 5571,
+      "middle_truncated": false,
+      "prediction": "Paragraph 4<|im_end|>",
+      "answers": [
+        "Paragraph 4"
+      ],
+      "score": 1.0,
+      "elapsed_seconds": 1.4677,
+      "compression": {
+        "count": 1,
+        "total_seconds": 0.004129249136894941,
+        "tokens_reclaimed": 3972
+      }
+    },
+    {
+      "mode": "compressed",
+      "task": "passage_retrieval_en",
+      "longbench_e_index": 224,
+      "sample_id": "ae58b22e9648e7f5daebad76cdb8c58831243ba861b55a65",
+      "source_prompt_tokens": 13274,
+      "actual_prompt_tokens": 13285,
+      "middle_truncated": false,
+      "prediction": "Paragraph 7<|im_end|>",
+      "answers": [
+        "Paragraph 7"
+      ],
+      "score": 1.0,
+      "elapsed_seconds": 3.0286,
+      "compression": {
+        "count": 1,
+        "total_seconds": 0.01085976604372263,
+        "tokens_reclaimed": 11686
+      }
+    },
+    {
+      "mode": "compressed",
+      "task": "passage_retrieval_en",
+      "longbench_e_index": 299,
+      "sample_id": "3f222fd481265de0c5a8ff816cd0b78ac6dd5bad24d6c062",
+      "source_prompt_tokens": 12978,
+      "actual_prompt_tokens": 12989,
+      "middle_truncated": false,
+      "prediction": "Paragraph 3<|im_end|>",
+      "answers": [
+        "Paragraph 3"
+      ],
+      "score": 1.0,
+      "elapsed_seconds": 2.9451,
+      "compression": {
+        "count": 1,
+        "total_seconds": 0.010427969042211771,
+        "tokens_reclaimed": 11390
+      }
+    }
+  ]
+}
