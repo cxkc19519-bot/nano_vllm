@@ -55,6 +55,22 @@ For the configured 4090 server, edit the `CONFIG` block at the top of [`app.py`]
 /home/user/jhk/anaconda/envs/nano-vllm/bin/python app.py
 ```
 
+### Long-Context Quality Evaluation
+
+`eval_needle.py` compares exact retrieval accuracy with KV compression disabled and enabled across configurable context lengths and insertion depths. `eval_longbench.py` evaluates an explicitly labeled [LongBench-E](https://github.com/THUDM/LongBench) subset using its official prompt formats and F1/retrieval scoring; it is not a full 21-task LongBench score.
+
+```bash
+CUDA_VISIBLE_DEVICES=0,1 /home/user/jhk/anaconda/envs/nano-vllm/bin/python eval_needle.py \
+  --model /home/user/jhk/models/Qwen3.5-9B --tensor-parallel-size 2
+
+pip install -r requirements-eval.txt
+CUDA_VISIBLE_DEVICES=0,1 /home/user/jhk/anaconda/envs/nano-vllm/bin/python eval_longbench.py \
+  --model /home/user/jhk/models/Qwen3.5-9B --tensor-parallel-size 2 \
+  --data-root /home/user/jhk/datasets/LongBench
+```
+
+Both scripts write JSON reports under `benchmarks/quality/`. Run a no-compression baseline before interpreting a quality delta. If the baseline fails simple retrieval, fix numerical/generation correctness before attributing a score change to KV compression.
+
 ### RTX 4090 / Qwen3.5 Larger-Model Validation
 
 This repository contains only RTX 4090 validation records. The `Qwen/Qwen3.5-9B` run uses tensor parallelism across two RTX 4090 GPUs; the earlier 2B and 4B runs use one RTX 4090.

@@ -109,7 +109,17 @@ class ModelRunner:
         if self.world_size > 1 and self.rank == 0:
             self.write_shm(method_name, *args)
         method = getattr(self, method_name, None)
-        return method(*args)
+        result = method(*args)
+        # Rank 0 serializes requests through a single shared-memory buffer.
+        # Without an acknowledgement, it can overwrite that buffer while a
+        # TP worker is still consuming the previous command (especially when
+        # compression adds compute_keep_indices/compact_kvcache calls between
+        # decode steps).  Synchronize every regular RPC so both ranks finish
+        # the same command before rank 0 publishes the next one.
+        # ``exit`` owns its own final barrier and destroys the process group.
+        if self.world_size > 1 and method_name != "exit":
+            dist.barrier()
+        return result
 
     def compute_keep_indices(self, seq: Sequence):
         return self.compressor.compute_keep_indices(seq)

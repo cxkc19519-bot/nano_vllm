@@ -65,6 +65,22 @@ llm.exit()
 /home/user/jhk/anaconda/envs/nano-vllm/bin/python app.py
 ```
 
+### 长上下文质量评测
+
+`eval_needle.py` 会在不同上下文长度和 Needle 插入深度下，对比关闭/开启 KV 压缩的精确检索率。`eval_longbench.py` 使用官方 [LongBench-E](https://github.com/THUDM/LongBench) 数据格式、提示词和 F1/检索评分规则评测代表性子集；它会明确标记为“子集”，不能当作完整 21 任务 LongBench 总分。
+
+```bash
+CUDA_VISIBLE_DEVICES=0,1 /home/user/jhk/anaconda/envs/nano-vllm/bin/python eval_needle.py \
+  --model /home/user/jhk/models/Qwen3.5-9B --tensor-parallel-size 2
+
+pip install -r requirements-eval.txt
+CUDA_VISIBLE_DEVICES=0,1 /home/user/jhk/anaconda/envs/nano-vllm/bin/python eval_longbench.py \
+  --model /home/user/jhk/models/Qwen3.5-9B --tensor-parallel-size 2 \
+  --data-root /home/user/jhk/datasets/LongBench
+```
+
+两类报告都会写入 `benchmarks/quality/`。解释压缩造成的质量变化前，必须先跑无压缩基线；如果基线连简单检索都失败，应先修复数值/生成正确性，不能把分数变化归因于 KV 压缩。
+
 ```bash
 CUDA_VISIBLE_DEVICES=0,1 python bench_qwen3_5.py \
   --model /path/to/Qwen3.5-9B \

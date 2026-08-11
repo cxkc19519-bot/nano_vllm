@@ -1,0 +1,3 @@
+# Optional dependencies for eval_longbench.py.
+# Pin below datasets 3 because the official LongBench v1 dataset uses a loader script.
+datasets<3
