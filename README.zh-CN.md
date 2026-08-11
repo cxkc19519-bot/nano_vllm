@@ -104,6 +104,17 @@ CUDA_VISIBLE_DEVICES=0,1 python bench_qwen3_5.py \
 
 环境为 PyTorch 2.6.0+cu124、FlashAttention 2.7.4、Transformers 5.15.0。原始报告见 [2B 报告](benchmarks/benchmark_qwen3_5_2b_4090.json)、[4B 报告](benchmarks/benchmark_qwen3_5_4b_4090.json) 和 [9B 双卡报告](benchmarks/benchmark_qwen3_5_9b_tp2_4090.json)。共享 GPU 同时有其他任务运行，因此该结果用于功能和可复现性记录，不代表隔离环境下的峰值性能。
 
+### 并发长上下文 KV 压缩对照
+
+以下对照在两张 RTX 4090（TP=2）上运行 Qwen3.5-9B：4 个并发请求，每条 2048 输入 token / 128 输出 token，两组均固定为 128 个 KV Block。
+
+| 版本 | TTFT | TPOT | Decode Throughput | KV Block 峰值 | 物理 KV token 峰值 | 压缩结果 |
+|------|------|------|-------------------|---------------|-------------------|----------|
+| 无压缩基线 | 2276.400 ms | 134.457 ms | 29.749 token/s | 36 | 8696 | 0 次 |
+| 开启 KV 压缩 | 2234.307 ms | 132.768 ms | 30.128 token/s | 36 | 8196 | 4 次，总计 49.939 ms，回收 4868 token |
+
+压缩后物理 KV token 峰值降低 5.75%。由于指标会记录压缩前的首次完整 Prefill，KV Block 峰值仍为 36；因此这组对照不能表述为“KV Block 峰值降低”。原始数据见 [无压缩基线](benchmarks/qwen3_5_9b_tp2_4090_b4_p2048_o128_baseline.json) 和 [压缩版](benchmarks/qwen3_5_9b_tp2_4090_b4_p2048_o128_compressed.json)。服务器为共享环境，该结果用于可复现性记录，不代表隔离环境下的峰值性能。
+
 ## 当前边界
 
 项目重点是帮助理解推理引擎的核心机制，不等同于生产级 vLLM。建议在部署前对目标模型完成数值对齐、长上下文、并发请求、抢占与压缩场景验证。

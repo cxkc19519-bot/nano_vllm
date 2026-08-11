@@ -24,32 +24,34 @@ CONFIG = {
     "gpus": "0,1",
     # Tensor Parallel（张量并行）卡数，必须等于上面 GPU 编号的数量。
     "tensor_parallel_size": 2,
-    # 每条请求的输入 token 数；数值越大，Prefill 阶段越长。
-    "prompt_tokens": 512,
+    # 并发请求数。4 路并发可覆盖调度、KV Block 与 Decode 吞吐路径，且已在双卡上验证稳定。
+    "batch_size": 4,
+    # 每条请求的输入 token 数；2048 用于覆盖更长的 Prefill 与 KV 压缩路径。
+    "prompt_tokens": 2048,
     # 每条请求生成的 token 数；至少为 2，才能计算 TPOT。
-    "output_tokens": 16,
+    "output_tokens": 128,
     # 正式计时前的预热次数，不计入最终结果。
     "warmup": 1,
     # 引擎允许的最大上下文长度。
-    "max_model_len": 1024,
+    "max_model_len": 4096,
     # 单次调度最多处理的 token 数。
-    "max_batched_tokens": 1024,
+    "max_batched_tokens": 8192,
     # 最大并发请求数；当前 Benchmark 默认只测 1 条请求。
-    "max_seqs": 2,
+    "max_seqs": 4,
     # KV Cache 的 Block 数。设为固定值可保留显存余量；设为 -1 表示自动估算。
-    "num_kvcache_blocks": 64,
+    "num_kvcache_blocks": 128,
     # 物理 KV 长度达到该阈值时，开始尝试 KV 压缩。
-    "compress_threshold": 256,
+    "compress_threshold": 1024,
     # 压缩时固定保留开头的 Attention Sink token 数。
-    "sink_tokens": 32,
+    "sink_tokens": 64,
     # 压缩时固定保留末尾滑动窗口的 token 数。
-    "recent_window": 64,
+    "recent_window": 512,
     # 用最近多少个 Query 的注意力分数评估中间历史 KV 的重要性。
     "recent_queries": 4,
     # 从中间历史区域额外保留的 Top-K 重要 KV 数。
-    "top_k": 64,
+    "top_k": 256,
     # 只填写文件名；结果会自动保存到 benchmarks/，不要填写目录。
-    "report_name": "manual_qwen3_5_9b_tp2_4090.json",
+    "report_name": "qwen3_5_9b_tp2_4090_b4_p2048_o128_compressed.json",
 }
 # ==============================================================================
 
@@ -69,6 +71,10 @@ def main() -> None:
         raise ValueError(
             "tensor_parallel_size 必须与 CONFIG['gpus'] 中 GPU 编号的数量一致"
         )
+    if int(CONFIG["batch_size"]) < 1:
+        raise ValueError("batch_size 必须大于等于 1")
+    if int(CONFIG["batch_size"]) > int(CONFIG["max_seqs"]):
+        raise ValueError("batch_size 不能大于 max_seqs")
 
     # 禁止把报告写到 benchmarks 外面，保证所有结果集中管理。
     report_name = Path(str(CONFIG["report_name"]))
@@ -81,6 +87,7 @@ def main() -> None:
         sys.executable,
         "bench_qwen3_5.py",
         "--model", str(model_path),
+        "--batch-size", str(CONFIG["batch_size"]),
         "--tensor-parallel-size", str(CONFIG["tensor_parallel_size"]),
         "--prompt-tokens", str(CONFIG["prompt_tokens"]),
         "--output-tokens", str(CONFIG["output_tokens"]),

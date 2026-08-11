@@ -84,6 +84,17 @@ CUDA_VISIBLE_DEVICES=0,1 python bench_qwen3_5.py \
 
 Source reports: [`benchmark_qwen3_5_2b_4090.json`](benchmarks/benchmark_qwen3_5_2b_4090.json), [`benchmark_qwen3_5_4b_4090.json`](benchmarks/benchmark_qwen3_5_4b_4090.json), and [`benchmark_qwen3_5_9b_tp2_4090.json`](benchmarks/benchmark_qwen3_5_9b_tp2_4090.json). These were eager-mode functional benchmarks; treat them as reproducibility records, not isolated peak-performance claims.
 
+### Concurrent Long-Context Compression Comparison
+
+The following paired run uses Qwen3.5-9B on 2 x RTX 4090 (TP=2), 4 concurrent requests, 2,048 prompt tokens and 128 output tokens per request. It uses the same 128-Block KV-cache budget for both variants.
+
+| Variant | TTFT (ms) | TPOT (ms) | Decode Throughput (tokens/s) | Peak KV Blocks | Peak Physical KV Tokens | Compression |
+|---------|-----------|-----------|------------------------------|----------------|-------------------------|-------------|
+| Baseline (disabled) | 2276.400 | 134.457 | 29.749 | 36 | 8696 | 0 runs |
+| KV compression | 2234.307 | 132.768 | 30.128 | 36 | 8196 | 4 runs, 49.939 ms total, 4868 tokens reclaimed |
+
+The physical-KV peak is 5.75% lower with compression. Peak block usage remains 36 because the metric includes the initial full prefill before compaction; this paired test must not be described as a peak-Block reduction. See the [baseline report](benchmarks/qwen3_5_9b_tp2_4090_b4_p2048_o128_baseline.json) and [compressed report](benchmarks/qwen3_5_9b_tp2_4090_b4_p2048_o128_compressed.json). Results come from a shared server and are reproducibility data rather than an isolated performance claim.
+
 
 ## Star History
 
