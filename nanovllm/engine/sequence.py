@@ -83,7 +83,7 @@ class Sequence:
     def __getstate__(self):
         last_state = self.last_token if not self.is_prefill else self.token_ids
         return (
-            self.num_tokens, self.num_prompt_tokens, self.num_cached_tokens,
+            self.seq_id, self.num_tokens, self.num_prompt_tokens, self.num_cached_tokens,
             self.num_physical_kv_tokens, self.kv_logical_indices,
             self.kv_is_compressed, self.num_scheduled_tokens, self.block_table,
             self.state_slot, self.state_needs_reset, last_state,
@@ -91,7 +91,7 @@ class Sequence:
 
     def __setstate__(self, state):
         (
-            self.num_tokens, self.num_prompt_tokens, self.num_cached_tokens,
+            self.seq_id, self.num_tokens, self.num_prompt_tokens, self.num_cached_tokens,
             self.num_physical_kv_tokens, self.kv_logical_indices,
             self.kv_is_compressed, self.num_scheduled_tokens, self.block_table,
             self.state_slot, self.state_needs_reset, last_state,

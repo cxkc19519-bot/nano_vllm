@@ -154,7 +154,18 @@ class ModelRunner:
         # For hybrid models, only full_attention layers need KV cache
         num_kv_layers = config.num_full_attention_layers
         block_bytes = 2 * num_kv_layers * self.block_size * num_kv_heads * head_dim * hf_config.dtype.itemsize
-        config.num_kvcache_blocks = int(total * config.gpu_memory_utilization - used - peak + current) // block_bytes
+        max_num_kvcache_blocks = int(total * config.gpu_memory_utilization - used - peak + current) // block_bytes
+        # A caller may deliberately reserve only a small, fixed KV cache for
+        # a memory-constrained or tensor-parallel benchmark.  Preserve that
+        # explicit cap instead of silently replacing it with the auto-sized
+        # value derived from the full device budget.
+        if config.num_kvcache_blocks > 0:
+            assert config.num_kvcache_blocks <= max_num_kvcache_blocks, (
+                f"requested {config.num_kvcache_blocks} KV blocks, but only "
+                f"{max_num_kvcache_blocks} fit in the configured GPU budget"
+            )
+        else:
+            config.num_kvcache_blocks = max_num_kvcache_blocks
         assert config.num_kvcache_blocks > 0
         self.kv_cache = torch.empty(2, num_kv_layers, config.num_kvcache_blocks, self.block_size, num_kv_heads, head_dim)
         layer_id = 0

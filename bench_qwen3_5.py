@@ -42,6 +42,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--max-model-len", type=int, default=2048)
     parser.add_argument("--max-batched-tokens", type=int, default=2048)
     parser.add_argument("--max-seqs", type=int, default=4)
+    parser.add_argument("--tensor-parallel-size", type=int, default=1,
+                        help="Number of GPUs used for tensor parallelism")
     parser.add_argument("--num-kvcache-blocks", type=int, default=-1)
     parser.add_argument("--compress-threshold", type=int, default=512)
     parser.add_argument("--sink-tokens", type=int, default=64)
@@ -127,6 +129,7 @@ def main() -> None:
     engine = LLM(
         args.model,
         enforce_eager=True,
+        tensor_parallel_size=args.tensor_parallel_size,
         max_model_len=args.max_model_len,
         max_num_batched_tokens=args.max_batched_tokens,
         max_num_seqs=args.max_seqs,
@@ -156,6 +159,7 @@ def main() -> None:
             "device": torch.cuda.get_device_name() if torch.cuda.is_available() else "cpu",
             "torch": torch.__version__,
             "seed": args.seed,
+            "tensor_parallel_size": args.tensor_parallel_size,
             "workload": {
                 "batch_size": args.batch_size,
                 "prompt_tokens_per_request": args.prompt_tokens,

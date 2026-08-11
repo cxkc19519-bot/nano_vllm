@@ -1,4 +1,5 @@
 from types import SimpleNamespace
+import pickle
 import unittest
 
 from nanovllm.engine.scheduler import Scheduler
@@ -50,6 +51,13 @@ class HybridSequenceStateTest(unittest.TestCase):
         self.assertEqual(seq.token_ids, list(range(16)))
         self.assertEqual(seq.num_physical_kv_tokens, len(seq.kv_logical_indices))
         self.assertLess(seq.num_physical_kv_tokens, seq.num_cached_tokens)
+
+    def test_pickle_preserves_sequence_id_for_tp_worker(self):
+        seq = Sequence([1, 2, 3])
+        restored = pickle.loads(pickle.dumps(seq))
+
+        self.assertEqual(restored.seq_id, seq.seq_id)
+        self.assertEqual(restored.token_ids, seq.token_ids)
 
 
 if __name__ == "__main__":
