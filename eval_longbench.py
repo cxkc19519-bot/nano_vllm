@@ -77,6 +77,12 @@ def parse_args() -> argparse.Namespace:
         help="已解压的官方 LongBench data.zip 所在目录；目录内应包含 data/",
     )
     parser.add_argument("--max-input-tokens", type=int, default=16384)
+    parser.add_argument(
+        "--max-batched-tokens",
+        type=int,
+        default=8192,
+        help="单次 Prefill 的 token 上限；超过该值的样本按 Chunked Prefill 调度",
+    )
     parser.add_argument("--num-kvcache-blocks", type=int, default=128)
     parser.add_argument("--compress-threshold", type=int, default=2048)
     parser.add_argument("--sink-tokens", type=int, default=64)
@@ -208,7 +214,7 @@ def run_mode(args: argparse.Namespace, tasks: list[str], mode: str) -> list[dict
         enforce_eager=True,
         tensor_parallel_size=args.tensor_parallel_size,
         max_model_len=max_model_len,
-        max_num_batched_tokens=args.max_input_tokens,
+        max_num_batched_tokens=min(args.max_batched_tokens, max_model_len),
         max_num_seqs=1,
         num_kvcache_blocks=args.num_kvcache_blocks,
         compress_threshold=threshold,
@@ -290,6 +296,10 @@ def main() -> None:
         "max_samples_per_task": args.max_samples,
         "data_root": str(args.data_root) if args.data_root else None,
         "max_input_tokens": args.max_input_tokens,
+        "max_batched_tokens": min(
+            args.max_batched_tokens,
+            args.max_input_tokens + max(MAX_GENERATION[task] for task in tasks) + 128,
+        ),
         "summary": summarize(results),
         "results": results,
     }

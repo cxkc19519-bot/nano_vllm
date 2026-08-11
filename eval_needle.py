@@ -56,6 +56,12 @@ def parse_args() -> argparse.Namespace:
     # it was truncated by the evaluator.
     parser.add_argument("--max-output-tokens", type=int, default=32)
     parser.add_argument("--max-model-len", type=int, default=16384)
+    parser.add_argument(
+        "--max-batched-tokens",
+        type=int,
+        default=8192,
+        help="单次 Prefill 的 token 上限；长请求会按此值进行 Chunked Prefill",
+    )
     parser.add_argument("--num-kvcache-blocks", type=int, default=128)
     parser.add_argument("--compress-threshold", type=int, default=1024)
     parser.add_argument("--sink-tokens", type=int, default=64)
@@ -170,7 +176,7 @@ def run_mode(args: argparse.Namespace, mode: str) -> list[dict]:
         enforce_eager=True,
         tensor_parallel_size=args.tensor_parallel_size,
         max_model_len=args.max_model_len,
-        max_num_batched_tokens=args.max_model_len,
+        max_num_batched_tokens=min(args.max_batched_tokens, args.max_model_len),
         max_num_seqs=1,
         num_kvcache_blocks=args.num_kvcache_blocks,
         compress_threshold=threshold,
@@ -238,6 +244,7 @@ def main() -> None:
         "tensor_parallel_size": args.tensor_parallel_size,
         "contexts": args.contexts,
         "depths": args.depths,
+        "max_batched_tokens": min(args.max_batched_tokens, args.max_model_len),
         "compression_config": {
             "threshold": args.compress_threshold,
             "sink_tokens": args.sink_tokens,
