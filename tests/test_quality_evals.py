@@ -2,7 +2,7 @@ import unittest
 
 import torch
 
-from eval_longbench import choose_indices, f1_score, retrieval_score
+from eval_longbench import build_prompt, choose_indices, f1_score, retrieval_score
 from eval_needle import repeat_to_length, wrap_as_chat_prompt
 from nanovllm.models.qwen3_5 import split_q_and_gate
 
@@ -67,6 +67,31 @@ class QualityEvaluationHelpersTest(unittest.TestCase):
 
     def test_uniform_sample_indices(self):
         self.assertEqual(choose_indices(10, 3), [0, 4, 9])
+
+    def test_longbench_passage_retrieval_uses_qwen_chat_template(self):
+        class Tokenizer:
+            chat_template = "qwen"
+
+            def encode(self, prompt, add_special_tokens=False):
+                return [1, 2, 3]
+
+            def decode(self, token_ids, skip_special_tokens=True):
+                return "decoded"
+
+            def apply_chat_template(self, messages, tokenize, add_generation_prompt, enable_thinking):
+                self.messages = messages
+                self.enable_thinking = enable_thinking
+                return "chat-formatted"
+
+        tokenizer = Tokenizer()
+        prompt, _, _ = build_prompt(
+            tokenizer,
+            "passage_retrieval_en",
+            {"context": "paragraphs", "input": "abstract"},
+            max_tokens=64,
+        )
+        self.assertEqual(prompt, "chat-formatted")
+        self.assertFalse(tokenizer.enable_thinking)
 
     def test_qwen3_5_q_and_gate_are_unpacked_per_head(self):
         # Two heads, each serialized as [query_head, gate_head].

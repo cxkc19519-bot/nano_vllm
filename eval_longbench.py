@@ -59,7 +59,6 @@ PROMPTS = {
 }
 
 MAX_GENERATION = {"qasper": 128, "hotpotqa": 32, "passage_retrieval_en": 32}
-NO_CHAT_TEMPLATE = {"passage_retrieval_en"}
 
 
 def parse_args() -> argparse.Namespace:
@@ -153,7 +152,11 @@ def middle_truncate(tokenizer, prompt: str, max_tokens: int) -> tuple[str, int, 
 def build_prompt(tokenizer, task: str, item: dict, max_tokens: int) -> tuple[str, int, bool]:
     prompt = PROMPTS[task].format(**item)
     prompt, source_tokens, truncated = middle_truncate(tokenizer, prompt, max_tokens)
-    if task not in NO_CHAT_TEMPLATE and getattr(tokenizer, "chat_template", None):
+    # LongBench's source prompts are model-agnostic.  Qwen3.5 is chat-tuned,
+    # so every selected task (including passage retrieval) must enter through
+    # its chat template.  Otherwise it starts a reasoning block by default
+    # and a short answer budget is exhausted before it emits the answer.
+    if getattr(tokenizer, "chat_template", None):
         try:
             prompt = tokenizer.apply_chat_template(
                 [{"role": "user", "content": prompt}],
