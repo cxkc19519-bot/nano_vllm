@@ -57,6 +57,14 @@ llm.exit()
 
 以下命令会使用固定随机种子和确定性 token ID 构造请求，输出 JSON 指标报告。报告统一存放在 [`benchmarks/`](benchmarks/)；默认输出路径为 `benchmarks/benchmark_qwen3_5.json`：
 
+### 一键运行
+
+服务器上不需要逐项输入参数。打开 [app.py](app.py)，只修改顶部 `CONFIG` 中的模型路径、GPU 编号、TP 数、输入/输出长度、KV 参数和报告名；然后在项目根目录执行一条命令即可。脚本会使用同一个 Python 解释器运行 Benchmark，并将结果固定写入 `benchmarks/`：
+
+```bash
+/home/user/jhk/anaconda/envs/nano-vllm/bin/python app.py
+```
+
 ```bash
 CUDA_VISIBLE_DEVICES=0,1 python bench_qwen3_5.py \
   --model /path/to/Qwen3.5-9B \

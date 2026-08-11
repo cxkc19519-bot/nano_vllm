@@ -49,6 +49,12 @@ outputs[0]["text"]
 
 Use `bench_qwen3_5.py` to run a reproducible Qwen3.5 Hybrid benchmark. It measures TTFT, TPOT, Decode Throughput, KV Cache / Block usage, and KV compression time. JSON reports are stored in [`benchmarks/`](benchmarks/); its default output path is `benchmarks/benchmark_qwen3_5.json`.
 
+For the configured 4090 server, edit the `CONFIG` block at the top of [`app.py`](app.py), then run the following single command. It launches the benchmark with that configuration and writes the report to `benchmarks/`.
+
+```bash
+/home/user/jhk/anaconda/envs/nano-vllm/bin/python app.py
+```
+
 ### RTX 4090 / Qwen3.5 Larger-Model Validation
 
 This repository contains only RTX 4090 validation records. The `Qwen/Qwen3.5-9B` run uses tensor parallelism across two RTX 4090 GPUs; the earlier 2B and 4B runs use one RTX 4090.
