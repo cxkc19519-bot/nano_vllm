@@ -50,7 +50,12 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--recent-window", type=int, default=128)
     parser.add_argument("--recent-queries", type=int, default=4)
     parser.add_argument("--top-k", type=int, default=128)
-    parser.add_argument("--output", type=Path, help="Optional JSON report path")
+    parser.add_argument(
+        "--output",
+        type=Path,
+        default=Path("benchmarks/benchmark_qwen3_5.json"),
+        help="JSON report path (default: benchmarks/benchmark_qwen3_5.json)",
+    )
     return parser.parse_args()
 
 
@@ -193,9 +198,8 @@ def main() -> None:
         }
         rendered = json.dumps(report, ensure_ascii=False, indent=2)
         print(rendered)
-        if args.output:
-            args.output.parent.mkdir(parents=True, exist_ok=True)
-            args.output.write_text(rendered + "\n", encoding="utf-8")
+        args.output.parent.mkdir(parents=True, exist_ok=True)
+        args.output.write_text(rendered + "\n", encoding="utf-8")
     finally:
         engine.exit()
 

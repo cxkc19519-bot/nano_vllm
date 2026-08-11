@@ -47,7 +47,7 @@ outputs[0]["text"]
 
 ## Benchmark
 
-Use `bench_qwen3_5.py` to run a reproducible Qwen3.5 Hybrid benchmark. It measures TTFT, TPOT, Decode Throughput, KV Cache / Block usage, and KV compression time.
+Use `bench_qwen3_5.py` to run a reproducible Qwen3.5 Hybrid benchmark. It measures TTFT, TPOT, Decode Throughput, KV Cache / Block usage, and KV compression time. JSON reports are stored in [`benchmarks/`](benchmarks/); its default output path is `benchmarks/benchmark_qwen3_5.json`.
 
 ### RTX 4090 / Qwen3.5 Larger-Model Validation
 
@@ -73,10 +73,10 @@ CUDA_VISIBLE_DEVICES=0,1 python bench_qwen3_5.py \
   --max-model-len 1024 --max-batched-tokens 1024 --max-seqs 2 \
   --num-kvcache-blocks 64 \
   --compress-threshold 256 --sink-tokens 32 --recent-window 64 \
-  --recent-queries 4 --top-k 64 --output benchmark_qwen3_5_9b_tp2_4090.json
+  --recent-queries 4 --top-k 64 --output benchmarks/benchmark_qwen3_5_9b_tp2_4090.json
 ```
 
-Source reports: [`benchmark_qwen3_5_2b_4090.json`](benchmark_qwen3_5_2b_4090.json), [`benchmark_qwen3_5_4b_4090.json`](benchmark_qwen3_5_4b_4090.json), and [`benchmark_qwen3_5_9b_tp2_4090.json`](benchmark_qwen3_5_9b_tp2_4090.json). These were eager-mode functional benchmarks; treat them as reproducibility records, not isolated peak-performance claims.
+Source reports: [`benchmark_qwen3_5_2b_4090.json`](benchmarks/benchmark_qwen3_5_2b_4090.json), [`benchmark_qwen3_5_4b_4090.json`](benchmarks/benchmark_qwen3_5_4b_4090.json), and [`benchmark_qwen3_5_9b_tp2_4090.json`](benchmarks/benchmark_qwen3_5_9b_tp2_4090.json). These were eager-mode functional benchmarks; treat them as reproducibility records, not isolated peak-performance claims.
 
 
 ## Star History

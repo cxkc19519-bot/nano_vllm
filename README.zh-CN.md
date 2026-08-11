@@ -55,7 +55,7 @@ llm.exit()
 
 ## 可复现 Benchmark
 
-以下命令会使用固定随机种子和确定性 token ID 构造请求，输出 JSON 指标报告：
+以下命令会使用固定随机种子和确定性 token ID 构造请求，输出 JSON 指标报告。报告统一存放在 [`benchmarks/`](benchmarks/)；默认输出路径为 `benchmarks/benchmark_qwen3_5.json`：
 
 ```bash
 CUDA_VISIBLE_DEVICES=0,1 python bench_qwen3_5.py \
@@ -73,7 +73,7 @@ CUDA_VISIBLE_DEVICES=0,1 python bench_qwen3_5.py \
   --recent-window 64 \
   --recent-queries 4 \
   --top-k 64 \
-  --output benchmark_qwen3_5_9b_tp2_4090.json
+  --output benchmarks/benchmark_qwen3_5_9b_tp2_4090.json
 ```
 
 报告包含：
@@ -94,7 +94,7 @@ CUDA_VISIBLE_DEVICES=0,1 python bench_qwen3_5.py \
 | Qwen3.5-4B | 1 x RTX 4090，TP=1 | 237.910 ms | 51.058 ms | 19.586 token/s | 3 | 24.0 MiB | 1 次，19.465 ms，回收 353 token |
 | Qwen3.5-9B | 2 x RTX 4090，TP=2 | 361.281 ms | 77.929 ms | 12.832 token/s | 3 / 64 | 24.0 MiB | 1 次，28.069 ms，回收 353 token |
 
-环境为 PyTorch 2.6.0+cu124、FlashAttention 2.7.4、Transformers 5.15.0。原始报告见 [2B 报告](benchmark_qwen3_5_2b_4090.json)、[4B 报告](benchmark_qwen3_5_4b_4090.json) 和 [9B 双卡报告](benchmark_qwen3_5_9b_tp2_4090.json)。共享 GPU 同时有其他任务运行，因此该结果用于功能和可复现性记录，不代表隔离环境下的峰值性能。
+环境为 PyTorch 2.6.0+cu124、FlashAttention 2.7.4、Transformers 5.15.0。原始报告见 [2B 报告](benchmarks/benchmark_qwen3_5_2b_4090.json)、[4B 报告](benchmarks/benchmark_qwen3_5_4b_4090.json) 和 [9B 双卡报告](benchmarks/benchmark_qwen3_5_9b_tp2_4090.json)。共享 GPU 同时有其他任务运行，因此该结果用于功能和可复现性记录，不代表隔离环境下的峰值性能。
 
 ## 当前边界
 
