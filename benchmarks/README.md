@@ -16,4 +16,6 @@ LongBench-E report covers three tasks and 15 unique samples (30 generations).
 The `kernels/` directory contains reproducible operator microbenchmarks.  The
 Fused Add + RMSNorm report compares the aligned PyTorch formula with the custom
 Triton kernel on an RTX 4090; its speedups are operator-level rather than
-end-to-end model claims.
+end-to-end model claims.  It also contains a paired Qwen3.5-9B / TP=2
+end-to-end report with three workloads, 20 measured pairs per workload, and
+520 generated requests in total.

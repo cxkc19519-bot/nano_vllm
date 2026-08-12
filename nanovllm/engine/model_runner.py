@@ -148,6 +148,13 @@ class ModelRunner:
             for slot in state_slots:
                 module.clear_state_slot(slot)
 
+    def set_fused_rmsnorm_enabled(self, enabled: bool):
+        """Apply the benchmark A/B switch consistently on every TP rank."""
+        if enabled:
+            os.environ.pop("NANOVLLM_DISABLE_FUSED_RMSNORM", None)
+        else:
+            os.environ["NANOVLLM_DISABLE_FUSED_RMSNORM"] = "1"
+
     def warmup_model(self):
         torch.cuda.empty_cache()
         torch.cuda.reset_peak_memory_stats()

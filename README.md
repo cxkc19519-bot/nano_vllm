@@ -137,6 +137,16 @@ The following operator-level results were measured on one RTX 4090 with BF16 act
 
 The maximum BF16 absolute error across the benchmark was 0.03125. A Qwen3.5-9B / TP=2 Needle A/B test produced the exact same generated text with the fused kernel disabled and enabled. These speedups are kernel-level measurements and must not be interpreted as end-to-end model speedups. Reproduce them with `bench_fused_add_rmsnorm.py`; see the [raw report](benchmarks/kernels/fused_add_rmsnorm_4090.json).
 
+To replace the earlier single-request observation, a paired end-to-end A/B benchmark alternates both variants inside the same Qwen3.5-9B engine on 2 x RTX 4090 (TP=2, eager mode). Each of three workloads uses three warm-up pairs and 20 measured pairs. This executes 260 requests per variant, or 520 requests in total. The table reports changes in the 20-run means; negative latency and positive throughput are improvements.
+
+| Prompt / batch / output | TTFT | TPOT | Decode Throughput | Total latency |
+|-------------------------|-----:|-----:|------------------:|--------------:|
+| 512 / 1 / 64 | -0.75% | -1.98% | +2.02% | -1.90% |
+| 2,048 / 4 / 64 | -6.32% | +0.07% | -0.04% | -1.26% |
+| 8,192 / 8 / 64 | -7.88% | -0.16% | +0.15% | -3.97% |
+
+The larger sample shows that the end-to-end benefit is concentrated in long-prefill TTFT, while decode metrics are nearly neutral at larger batches. All 20 single-request pairs produced identical token IDs. In sampled batched generation, small BF16 reduction-order differences can be amplified autoregressively, so this report must not be described as universal token-exact equivalence; Needle and LongBench remain the semantic-quality checks. Reproduce the paired benchmark with `bench_fused_rmsnorm_e2e.py`; the [raw report](benchmarks/kernels/fused_add_rmsnorm_e2e_9b_tp2_4090.json) contains mean, P50, P95, standard deviation, minimum, and maximum.
+
 ### Concurrent Long-Context Compression Comparison
 
 The following paired run uses Qwen3.5-9B on 2 x RTX 4090 (TP=2), 4 concurrent requests, 2,048 prompt tokens and 128 output tokens per request. It uses the same 128-Block KV-cache budget for both variants.

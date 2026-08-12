@@ -1,0 +1,326 @@
+{
+  "benchmark": "qwen3.5-fused-add-rmsnorm-end-to-end-paired",
+  "device": "NVIDIA GeForce RTX 4090",
+  "torch": "2.6.0+cu124",
+  "tensor_parallel_size": 2,
+  "seed": 20260813,
+  "warmup_pairs_per_scenario": 3,
+  "repetitions_per_variant_per_scenario": 20,
+  "execution_mode": "eager",
+  "sampling": {
+    "temperature": 1e-05,
+    "ignore_eos": true
+  },
+  "all_output_pairs_exactly_equal": false,
+  "scenarios": [
+    {
+      "workload": {
+        "prompt_tokens": 512,
+        "batch_size": 1,
+        "output_tokens": 64
+      },
+      "measured_pairs": 20,
+      "measured_requests_per_variant": 20,
+      "exact_output_matching_pairs": 20,
+      "metrics": {
+        "reference": {
+          "ttft_ms": {
+            "mean": 251.2729,
+            "p50": 251.0924,
+            "p95": 252.1546,
+            "stddev": 0.5106,
+            "min": 250.7839,
+            "max": 252.9291
+          },
+          "tpot_ms": {
+            "mean": 53.7729,
+            "p50": 53.7694,
+            "p95": 53.8585,
+            "stddev": 0.0866,
+            "min": 53.5857,
+            "max": 54.0235
+          },
+          "decode_throughput_tokens_per_second": {
+            "mean": 18.5968,
+            "p50": 18.5979,
+            "p95": 18.6368,
+            "stddev": 0.0299,
+            "min": 18.5105,
+            "max": 18.6617
+          },
+          "request_throughput_per_second": {
+            "mean": 0.2748,
+            "p50": 0.2748,
+            "p95": 0.2753,
+            "stddev": 0.0004,
+            "min": 0.2736,
+            "max": 0.2757
+          },
+          "total_latency_ms": {
+            "mean": 3639.5342,
+            "p50": 3639.3474,
+            "p95": 3644.5142,
+            "stddev": 5.3855,
+            "min": 3627.4044,
+            "max": 3654.9719
+          }
+        },
+        "fused": {
+          "ttft_ms": {
+            "mean": 249.3838,
+            "p50": 248.9594,
+            "p95": 252.0235,
+            "stddev": 1.0651,
+            "min": 248.6119,
+            "max": 252.5537
+          },
+          "tpot_ms": {
+            "mean": 52.7082,
+            "p50": 52.7102,
+            "p95": 52.8065,
+            "stddev": 0.0724,
+            "min": 52.5733,
+            "max": 52.9145
+          },
+          "decode_throughput_tokens_per_second": {
+            "mean": 18.9724,
+            "p50": 18.9717,
+            "p95": 19.0099,
+            "stddev": 0.026,
+            "min": 18.8984,
+            "max": 19.021
+          },
+          "request_throughput_per_second": {
+            "mean": 0.2801,
+            "p50": 0.28,
+            "p95": 0.2806,
+            "stddev": 0.0004,
+            "min": 0.2791,
+            "max": 0.2808
+          },
+          "total_latency_ms": {
+            "mean": 3570.5652,
+            "p50": 3570.8337,
+            "p95": 3576.5261,
+            "stddev": 4.5929,
+            "min": 3561.585,
+            "max": 3582.9673
+          }
+        }
+      },
+      "fused_vs_reference_delta": {
+        "ttft_ms_percent": -0.752,
+        "tpot_ms_percent": -1.98,
+        "decode_throughput_tokens_per_second_percent": 2.02,
+        "request_throughput_per_second_percent": 1.929,
+        "total_latency_ms_percent": -1.895
+      }
+    },
+    {
+      "workload": {
+        "prompt_tokens": 2048,
+        "batch_size": 4,
+        "output_tokens": 64
+      },
+      "measured_pairs": 20,
+      "measured_requests_per_variant": 80,
+      "exact_output_matching_pairs": 1,
+      "metrics": {
+        "reference": {
+          "ttft_ms": {
+            "mean": 2159.9538,
+            "p50": 2159.8032,
+            "p95": 2167.5512,
+            "stddev": 4.6813,
+            "min": 2151.2191,
+            "max": 2171.766
+          },
+          "tpot_ms": {
+            "mean": 131.2295,
+            "p50": 131.211,
+            "p95": 131.7713,
+            "stddev": 0.2724,
+            "min": 130.7927,
+            "max": 131.8051
+          },
+          "decode_throughput_tokens_per_second": {
+            "mean": 30.4811,
+            "p50": 30.4852,
+            "p95": 30.5745,
+            "stddev": 0.0632,
+            "min": 30.3478,
+            "max": 30.5828
+          },
+          "request_throughput_per_second": {
+            "mean": 0.3836,
+            "p50": 0.3835,
+            "p95": 0.3846,
+            "stddev": 0.0007,
+            "min": 0.382,
+            "max": 0.3846
+          },
+          "total_latency_ms": {
+            "mean": 10427.9863,
+            "p50": 10429.5108,
+            "p95": 10458.2949,
+            "stddev": 18.9685,
+            "min": 10399.3332,
+            "max": 10471.626
+          }
+        },
+        "fused": {
+          "ttft_ms": {
+            "mean": 2023.5572,
+            "p50": 2024.5857,
+            "p95": 2028.6498,
+            "stddev": 3.7018,
+            "min": 2015.3736,
+            "max": 2028.6747
+          },
+          "tpot_ms": {
+            "mean": 131.3163,
+            "p50": 130.8723,
+            "p95": 131.739,
+            "stddev": 2.1892,
+            "min": 130.3434,
+            "max": 140.792
+          },
+          "decode_throughput_tokens_per_second": {
+            "mean": 30.4687,
+            "p50": 30.5642,
+            "p95": 30.6769,
+            "stddev": 0.476,
+            "min": 28.4107,
+            "max": 30.6882
+          },
+          "request_throughput_per_second": {
+            "mean": 0.3885,
+            "p50": 0.3895,
+            "p95": 0.3907,
+            "stddev": 0.005,
+            "min": 0.367,
+            "max": 0.3907
+          },
+          "total_latency_ms": {
+            "mean": 10297.0564,
+            "p50": 10270.7148,
+            "p95": 10323.1721,
+            "stddev": 139.1058,
+            "min": 10237.2186,
+            "max": 10898.1174
+          }
+        }
+      },
+      "fused_vs_reference_delta": {
+        "ttft_ms_percent": -6.315,
+        "tpot_ms_percent": 0.066,
+        "decode_throughput_tokens_per_second_percent": -0.041,
+        "request_throughput_per_second_percent": 1.277,
+        "total_latency_ms_percent": -1.256
+      }
+    },
+    {
+      "workload": {
+        "prompt_tokens": 8192,
+        "batch_size": 8,
+        "output_tokens": 64
+      },
+      "measured_pairs": 20,
+      "measured_requests_per_variant": 160,
+      "exact_output_matching_pairs": 1,
+      "metrics": {
+        "reference": {
+          "ttft_ms": {
+            "mean": 8167.1469,
+            "p50": 8135.6116,
+            "p95": 8178.0247,
+            "stddev": 138.0325,
+            "min": 8127.3881,
+            "max": 8768.5137
+          },
+          "tpot_ms": {
+            "mean": 234.3347,
+            "p50": 233.0738,
+            "p95": 236.7782,
+            "stddev": 2.8915,
+            "min": 232.7124,
+            "max": 245.8837
+          },
+          "decode_throughput_tokens_per_second": {
+            "mean": 34.1442,
+            "p50": 34.3239,
+            "p95": 34.3724,
+            "stddev": 0.4057,
+            "min": 32.5357,
+            "max": 34.3772
+          },
+          "request_throughput_per_second": {
+            "mean": 0.2733,
+            "p50": 0.2744,
+            "p95": 0.2747,
+            "stddev": 0.0024,
+            "min": 0.2654,
+            "max": 0.2748
+          },
+          "total_latency_ms": {
+            "mean": 29278.4504,
+            "p50": 29153.5157,
+            "p95": 29953.4147,
+            "stddev": 266.6871,
+            "min": 29111.6948,
+            "max": 30142.7759
+          }
+        },
+        "fused": {
+          "ttft_ms": {
+            "mean": 7523.4204,
+            "p50": 7525.1475,
+            "p95": 7530.3242,
+            "stddev": 4.3767,
+            "min": 7516.5649,
+            "max": 7530.6803
+          },
+          "tpot_ms": {
+            "mean": 233.9682,
+            "p50": 232.9444,
+            "p95": 235.5601,
+            "stddev": 2.3124,
+            "min": 232.3129,
+            "max": 243.0925
+          },
+          "decode_throughput_tokens_per_second": {
+            "mean": 34.1959,
+            "p50": 34.343,
+            "p95": 34.4221,
+            "stddev": 0.3284,
+            "min": 32.9093,
+            "max": 34.4363
+          },
+          "request_throughput_per_second": {
+            "mean": 0.2846,
+            "p50": 0.2852,
+            "p95": 0.2855,
+            "stddev": 0.0014,
+            "min": 0.2788,
+            "max": 0.2855
+          },
+          "total_latency_ms": {
+            "mean": 28115.0791,
+            "p50": 28051.8101,
+            "p95": 28204.2037,
+            "stddev": 145.0187,
+            "min": 28019.5451,
+            "max": 28690.154
+          }
+        }
+      },
+      "fused_vs_reference_delta": {
+        "ttft_ms_percent": -7.882,
+        "tpot_ms_percent": -0.156,
+        "decode_throughput_tokens_per_second_percent": 0.151,
+        "request_throughput_per_second_percent": 4.135,
+        "total_latency_ms_percent": -3.973
+      }
+    }
+  ]
+}
