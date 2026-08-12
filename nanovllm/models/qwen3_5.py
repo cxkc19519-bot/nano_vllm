@@ -24,6 +24,7 @@ from nanovllm.layers.linear import ColumnParallelLinear, MergedColumnParallelLin
 from nanovllm.layers.rotary_embedding import get_rope
 from nanovllm.layers.embed_head import VocabParallelEmbedding, ParallelLMHead
 from nanovllm.layers.gated_deltanet import GatedDeltaNet
+from nanovllm.layers.fused_add_rmsnorm import qwen3_5_add_rmsnorm
 from nanovllm.utils.context import get_context
 
 
@@ -57,13 +58,7 @@ class Qwen3_5RMSNorm(nn.Module):
         self.eps = eps
 
     def forward(self, x: torch.Tensor, residual: torch.Tensor | None = None):
-        input_dtype = x.dtype
-        if residual is not None:
-            x = x.float() + residual.float()
-            residual = x.to(dtype=residual.dtype)
-        x = x.float() * torch.rsqrt(x.float().pow(2).mean(dim=-1, keepdim=True) + self.eps)
-        x = (x * (1.0 + self.weight.float())).to(input_dtype)
-        return (x, residual) if residual is not None else x
+        return qwen3_5_add_rmsnorm(x, self.weight, self.eps, residual)
 
 
 class Qwen3_5Attention(nn.Module):
