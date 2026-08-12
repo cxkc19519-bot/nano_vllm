@@ -12,3 +12,8 @@ The `quality/` directory contains the larger Qwen3.5-9B / 2 x RTX 4090
 long-context quality comparisons.  The Needle report covers 4k through 32k
 contexts at five insertion depths (40 baseline/compressed generations).  The
 LongBench-E report covers three tasks and 15 unique samples (30 generations).
+
+The `kernels/` directory contains reproducible operator microbenchmarks.  The
+Fused Add + RMSNorm report compares the aligned PyTorch formula with the custom
+Triton kernel on an RTX 4090; its speedups are operator-level rather than
+end-to-end model claims.

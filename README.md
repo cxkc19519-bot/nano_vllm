@@ -122,6 +122,21 @@ CUDA_VISIBLE_DEVICES=0,1 python bench_qwen3_5.py \
 
 Source reports: [`benchmark_qwen3_5_2b_4090.json`](benchmarks/benchmark_qwen3_5_2b_4090.json), [`benchmark_qwen3_5_4b_4090.json`](benchmarks/benchmark_qwen3_5_4b_4090.json), and [`benchmark_qwen3_5_9b_tp2_4090.json`](benchmarks/benchmark_qwen3_5_9b_tp2_4090.json). These were eager-mode functional benchmarks; treat them as reproducibility records, not isolated peak-performance claims.
 
+### Triton Fused Add + RMSNorm
+
+The Qwen3.5 path includes a custom Triton kernel that fuses residual addition, FP32 RMS reduction, normalization, and Qwen3.5's `(1 + weight)` scaling. The same implementation also specializes the no-residual RMSNorm path used by Q/K normalization, while unsupported devices or layouts fall back to the aligned PyTorch formula.
+
+The following operator-level results were measured on one RTX 4090 with BF16 activations, hidden size 4096, 30 warm-up iterations, and 200 timed iterations:
+
+| Rows | PyTorch reference | Triton fused | Speedup |
+|-----:|------------------:|-------------:|--------:|
+| 1 | 0.0970 ms | 0.0437 ms | 2.22x |
+| 128 | 0.0986 ms | 0.0440 ms | 2.24x |
+| 2,048 | 0.3195 ms | 0.0466 ms | 6.86x |
+| 8,192 | 2.3197 ms | 0.2924 ms | 7.93x |
+
+The maximum BF16 absolute error across the benchmark was 0.03125. A Qwen3.5-9B / TP=2 Needle A/B test produced the exact same generated text with the fused kernel disabled and enabled. These speedups are kernel-level measurements and must not be interpreted as end-to-end model speedups. Reproduce them with `bench_fused_add_rmsnorm.py`; see the [raw report](benchmarks/kernels/fused_add_rmsnorm_4090.json).
+
 ### Concurrent Long-Context Compression Comparison
 
 The following paired run uses Qwen3.5-9B on 2 x RTX 4090 (TP=2), 4 concurrent requests, 2,048 prompt tokens and 128 output tokens per request. It uses the same 128-Block KV-cache budget for both variants.

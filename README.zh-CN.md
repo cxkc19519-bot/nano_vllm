@@ -142,6 +142,21 @@ CUDA_VISIBLE_DEVICES=0,1 python bench_qwen3_5.py \
 
 环境为 PyTorch 2.6.0+cu124、FlashAttention 2.7.4、Transformers 5.15.0。原始报告见 [2B 报告](benchmarks/benchmark_qwen3_5_2b_4090.json)、[4B 报告](benchmarks/benchmark_qwen3_5_4b_4090.json) 和 [9B 双卡报告](benchmarks/benchmark_qwen3_5_9b_tp2_4090.json)。共享 GPU 同时有其他任务运行，因此该结果用于功能和可复现性记录，不代表隔离环境下的峰值性能。
 
+### Triton Fused Add + RMSNorm
+
+Qwen3.5 执行路径新增自定义 Triton 融合算子，将 Residual 累加、FP32 RMS 归约、归一化以及 Qwen3.5 特有的 `(1 + weight)` 缩放合并到单个 Kernel；同一实现也覆盖 Q/K Norm 使用的无 Residual 路径，不支持的设备或内存布局会自动回退到数值对齐的 PyTorch 公式。
+
+以下为单张 RTX 4090、BF16、Hidden Size 4096、预热 30 次、正式计时 200 次的算子级结果：
+
+| Token 行数 | PyTorch 参考实现 | Triton 融合算子 | 加速比 |
+|-----------:|-----------------:|----------------:|-------:|
+| 1 | 0.0970 ms | 0.0437 ms | 2.22× |
+| 128 | 0.0986 ms | 0.0440 ms | 2.24× |
+| 2048 | 0.3195 ms | 0.0466 ms | 6.86× |
+| 8192 | 2.3197 ms | 0.2924 ms | 7.93× |
+
+微基准最大 BF16 绝对误差为 0.03125；Qwen3.5-9B、TP=2 的 Needle A/B 测试中，关闭和开启融合算子生成文本完全一致。表中为算子级加速，不能等同于端到端模型加速。可通过 `bench_fused_add_rmsnorm.py` 复现，原始数据见 [4090 报告](benchmarks/kernels/fused_add_rmsnorm_4090.json)。
+
 ### 并发长上下文 KV 压缩对照
 
 以下对照在两张 RTX 4090（TP=2）上运行 Qwen3.5-9B：4 个并发请求，每条 2048 输入 token / 128 输出 token，两组均固定为 128 个 KV Block。

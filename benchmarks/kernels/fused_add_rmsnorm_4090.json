@@ -1,0 +1,65 @@
+{
+  "benchmark": "qwen3.5-fused-add-rmsnorm",
+  "device": "NVIDIA GeForce RTX 4090",
+  "dtype": "bfloat16",
+  "warmup": 30,
+  "iterations": 200,
+  "results": [
+    {
+      "rows": 1,
+      "hidden_size": 4096,
+      "reference_ms": 0.097012,
+      "fused_ms": 0.043676,
+      "speedup": 2.221,
+      "max_abs_error": 0.0
+    },
+    {
+      "rows": 4,
+      "hidden_size": 4096,
+      "reference_ms": 0.096353,
+      "fused_ms": 0.043812,
+      "speedup": 2.199,
+      "max_abs_error": 0.0
+    },
+    {
+      "rows": 16,
+      "hidden_size": 4096,
+      "reference_ms": 0.09727,
+      "fused_ms": 0.043955,
+      "speedup": 2.213,
+      "max_abs_error": 0.0078125
+    },
+    {
+      "rows": 128,
+      "hidden_size": 4096,
+      "reference_ms": 0.098611,
+      "fused_ms": 0.044032,
+      "speedup": 2.24,
+      "max_abs_error": 3.0517578125e-05
+    },
+    {
+      "rows": 512,
+      "hidden_size": 4096,
+      "reference_ms": 0.09855,
+      "fused_ms": 0.044047,
+      "speedup": 2.237,
+      "max_abs_error": 0.015625
+    },
+    {
+      "rows": 2048,
+      "hidden_size": 4096,
+      "reference_ms": 0.319493,
+      "fused_ms": 0.046588,
+      "speedup": 6.858,
+      "max_abs_error": 0.015625
+    },
+    {
+      "rows": 8192,
+      "hidden_size": 4096,
+      "reference_ms": 2.319688,
+      "fused_ms": 0.292437,
+      "speedup": 7.932,
+      "max_abs_error": 0.03125
+    }
+  ]
+}
