@@ -47,6 +47,9 @@ class LLMEngine:
             "count": 0,
             "total_seconds": 0.0,
             "last_seconds": 0.0,
+            "selection_seconds": 0.0,
+            "compaction_seconds": 0.0,
+            "last_compaction_seconds": 0.0,
             "tokens_reclaimed": 0,
             "skipped_no_free_blocks": 0,
         }
@@ -74,6 +77,9 @@ class LLMEngine:
                     torch.cuda.synchronize()
                 started_at = perf_counter()
                 keep_indices = self.model_runner.call("compute_keep_indices", seq)
+                if torch.cuda.is_available():
+                    torch.cuda.synchronize()
+                selection_elapsed = perf_counter() - started_at
                 if len(keep_indices) < seq.num_physical_kv_tokens:
                     new_num_tokens = len(keep_indices)
                     num_new_blocks = (new_num_tokens + self.scheduler.block_size - 1) // self.scheduler.block_size
@@ -85,9 +91,13 @@ class LLMEngine:
                         continue
                     new_block_table = [self.scheduler.block_manager._allocate_block() for _ in range(num_new_blocks)]
 
+                    if torch.cuda.is_available():
+                        torch.cuda.synchronize()
+                    compaction_started_at = perf_counter()
                     self.model_runner.call("compact_kvcache", seq, keep_indices, new_block_table)
                     if torch.cuda.is_available():
                         torch.cuda.synchronize()
+                    compaction_elapsed = perf_counter() - compaction_started_at
 
                     for block_id in seq.block_table:
                         block = self.scheduler.block_manager.blocks[block_id]
@@ -110,6 +120,9 @@ class LLMEngine:
                     self.compression_stats["count"] += 1
                     self.compression_stats["total_seconds"] += elapsed
                     self.compression_stats["last_seconds"] = elapsed
+                    self.compression_stats["selection_seconds"] += selection_elapsed
+                    self.compression_stats["compaction_seconds"] += compaction_elapsed
+                    self.compression_stats["last_compaction_seconds"] = compaction_elapsed
                     self.compression_stats["tokens_reclaimed"] += len(previous_logical_indices) - new_num_tokens
 
         seqs, is_prefill = self.scheduler.schedule()

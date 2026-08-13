@@ -19,3 +19,8 @@ Triton kernel on an RTX 4090; its speedups are operator-level rather than
 end-to-end model claims.  It also contains a paired Qwen3.5-9B / TP=2
 end-to-end report with three workloads, 20 measured pairs per workload, and
 520 generated requests in total.
+
+The fused KV-compaction reports compare the original PyTorch gather/scatter
+path with a direct Triton K/V copy.  The operator report uses Qwen3.5-9B TP=2
+per-rank cache geometry; the two end-to-end reports split importance-selection
+time from physical KV-copy time for a four-request workload.

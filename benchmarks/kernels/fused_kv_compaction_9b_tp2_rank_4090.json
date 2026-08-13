@@ -1,0 +1,79 @@
+{
+  "benchmark": "fused-kv-cache-compaction",
+  "device": "NVIDIA GeForce RTX 4090",
+  "dtype": "bfloat16",
+  "layers": 9,
+  "num_kv_heads_per_rank": 2,
+  "head_dim": 256,
+  "block_size": 256,
+  "warmup": 30,
+  "iterations": 100,
+  "results": [
+    {
+      "source_tokens": 256,
+      "kept_tokens": 256,
+      "copied_mib": 4.5,
+      "pytorch_ms": 0.183501,
+      "fused_ms": 0.041114,
+      "speedup": 4.463,
+      "pytorch_temporary_mib": 4.506,
+      "fused_temporary_mib": 0.0,
+      "bit_exact": true
+    },
+    {
+      "source_tokens": 512,
+      "kept_tokens": 256,
+      "copied_mib": 4.5,
+      "pytorch_ms": 0.18187,
+      "fused_ms": 0.041176,
+      "speedup": 4.417,
+      "pytorch_temporary_mib": 4.506,
+      "fused_temporary_mib": 0.0,
+      "bit_exact": true
+    },
+    {
+      "source_tokens": 1024,
+      "kept_tokens": 512,
+      "copied_mib": 9.0,
+      "pytorch_ms": 0.18133,
+      "fused_ms": 0.040739,
+      "speedup": 4.451,
+      "pytorch_temporary_mib": 9.012,
+      "fused_temporary_mib": 0.0,
+      "bit_exact": true
+    },
+    {
+      "source_tokens": 2048,
+      "kept_tokens": 1024,
+      "copied_mib": 18.0,
+      "pytorch_ms": 0.182945,
+      "fused_ms": 0.041165,
+      "speedup": 4.444,
+      "pytorch_temporary_mib": 18.023,
+      "fused_temporary_mib": 0.0,
+      "bit_exact": true
+    },
+    {
+      "source_tokens": 4096,
+      "kept_tokens": 2048,
+      "copied_mib": 36.0,
+      "pytorch_ms": 0.194796,
+      "fused_ms": 0.041183,
+      "speedup": 4.73,
+      "pytorch_temporary_mib": 36.047,
+      "fused_temporary_mib": 0.0,
+      "bit_exact": true
+    },
+    {
+      "source_tokens": 8192,
+      "kept_tokens": 4096,
+      "copied_mib": 72.0,
+      "pytorch_ms": 0.389147,
+      "fused_ms": 0.167894,
+      "speedup": 2.318,
+      "pytorch_temporary_mib": 72.094,
+      "fused_temporary_mib": 0.0,
+      "bit_exact": true
+    }
+  ]
+}

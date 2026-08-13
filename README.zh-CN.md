@@ -167,6 +167,21 @@ Qwen3.5 执行路径新增自定义 Triton 融合算子，将 Residual 累加、
 
 这组扩大样本说明收益主要体现在长 Prefill 的 TTFT，而 Decode 指标在较大并发下接近持平。单并发的 20/20 配对输出 token 完全一致；批量采样下，BF16 两种归约顺序的微小数值差会被自回归采样放大，因此不能把该端到端报告表述为“所有生成逐 token 完全等价”，语义质量仍以 Needle/LongBench 对照为准。复现脚本为 `bench_fused_rmsnorm_e2e.py`，完整 mean/P50/P95/标准差见 [端到端报告](benchmarks/kernels/fused_add_rmsnorm_e2e_9b_tp2_4090.json)。
 
+### Triton Fused KV Cache Compaction
+
+KV 压缩搬运路径新增自定义 Triton Kernel：直接根据旧 Block Table、保留索引和新 Block Table 计算源/目标物理 slot，在一次 Kernel 中跨全部 Full Attention 层同时搬运 K 与 V。相比原先逐层执行 PyTorch gather/scatter，该实现消除了逐层 Python 调度、K/V 分离索引以及与保留 KV 等大的临时张量；不支持 Triton 的环境会自动回退到原始语义的 PyTorch 路径。
+
+以下微基准使用 Qwen3.5-9B 在 TP=2 下单个 Rank 的真实 KV 几何：9 个 Full Attention 层、2 个 KV Heads/Rank、Head Dim 256、BF16，预热 30 次并正式计时 100 次。所有规模的搬运结果均达到 bit-exact：
+
+| 源 Token → 保留 Token | PyTorch | Triton Fused | 加速比 | PyTorch 临时显存 | Fused 临时显存 |
+|------------------------|--------:|-------------:|-------:|-----------------:|----------------:|
+| 512 → 256 | 0.1819 ms | 0.0412 ms | 4.42× | 4.51 MiB | 0 MiB |
+| 2048 → 1024 | 0.1829 ms | 0.0412 ms | 4.44× | 18.02 MiB | 0 MiB |
+| 4096 → 2048 | 0.1948 ms | 0.0412 ms | 4.73× | 36.05 MiB | 0 MiB |
+| 8192 → 4096 | 0.3891 ms | 0.1679 ms | 2.32× | 72.09 MiB | 0 MiB |
+
+在 Qwen3.5-9B、2×RTX 4090（TP=2）、4 并发、每请求 2048 输入/128 输出的真实压缩链路中，4 次 KV 搬运累计耗时由 31.01 ms 降至 7.53 ms（4.12×，降低 75.71%）；包含注意力重要性打分、块分配和搬运的完整压缩耗时由 74.04 ms 降至 49.61 ms（降低 32.99%），两组均回收 6916 个物理 KV token。微基准见 [算子报告](benchmarks/kernels/fused_kv_compaction_9b_tp2_rank_4090.json)，端到端对照见 [PyTorch](benchmarks/kernels/kv_compaction_e2e_9b_tp2_pytorch_4090.json) 与 [Fused](benchmarks/kernels/kv_compaction_e2e_9b_tp2_fused_4090.json) 报告。
+
 ### 并发长上下文 KV 压缩对照
 
 以下对照在两张 RTX 4090（TP=2）上运行 Qwen3.5-9B：4 个并发请求，每条 2048 输入 token / 128 输出 token，两组均固定为 128 个 KV Block。

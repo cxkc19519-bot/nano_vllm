@@ -1,11 +1,13 @@
 import torch
 from nanovllm.config import Config
 from nanovllm.engine.sequence import Sequence
+from nanovllm.layers.fused_kv_compaction import compact_kv_cache
 
 class KVCacheCompressorWorker:
-    def __init__(self, config: Config, attn_modules: list):
+    def __init__(self, config: Config, attn_modules: list, kv_cache: torch.Tensor | None = None):
         self.config = config
         self.attn_modules = attn_modules
+        self.kv_cache = kv_cache
         self.block_size = config.kvcache_block_size
 
     def _slots_for_sequence(self, seq: Sequence) -> torch.Tensor:
@@ -80,25 +82,17 @@ class KVCacheCompressorWorker:
 
     @torch.inference_mode()
     def compact_kvcache_memory(self, seq: Sequence, keep_indices: list[int], new_block_table: list[int]):
-        keep_indices_tensor = torch.tensor(keep_indices, dtype=torch.long, device="cuda")
-
-        slots_tensor = self._slots_for_sequence(seq)
-
-        new_slots = []
-        new_num_tokens = len(keep_indices)
-        num_new_blocks = len(new_block_table)
-        full_blocks, remainder = divmod(new_num_tokens, self.block_size)
-        for i in range(full_blocks):
-            new_slots.extend(range(new_block_table[i] * self.block_size, (new_block_table[i] + 1) * self.block_size))
-        if remainder:
-            new_slots.extend(range(new_block_table[full_blocks] * self.block_size, new_block_table[full_blocks] * self.block_size + remainder))
-        new_slots_tensor = torch.tensor(new_slots, dtype=torch.long, device="cuda")
-
-        for module in self.attn_modules:
-            k_cache_flat = module.k_cache.view(-1, module.num_kv_heads, module.head_dim)
-            v_cache_flat = module.v_cache.view(-1, module.num_kv_heads, module.head_dim)
-            k_compact = k_cache_flat[slots_tensor[keep_indices_tensor]]
-            v_compact = v_cache_flat[slots_tensor[keep_indices_tensor]]
-
-            k_cache_flat[new_slots_tensor] = k_compact
-            v_cache_flat[new_slots_tensor] = v_compact
+        if self.kv_cache is None:
+            raise RuntimeError("contiguous model KV cache is required for compaction")
+        device = self.kv_cache.device
+        old_blocks = torch.tensor(seq.block_table, dtype=torch.int32, device=device)
+        new_blocks = torch.tensor(new_block_table, dtype=torch.int32, device=device)
+        keep = torch.tensor(keep_indices, dtype=torch.int32, device=device)
+        compact_kv_cache(
+            self.kv_cache[0],
+            self.kv_cache[1],
+            old_blocks,
+            new_blocks,
+            keep,
+            self.block_size,
+        )

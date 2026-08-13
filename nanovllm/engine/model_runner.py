@@ -60,7 +60,7 @@ class ModelRunner:
                 module.allocate_state_pool(config.max_num_seqs + self.max_graph_bs)
         self.warmup_model()
         self.allocate_kv_cache()
-        self.compressor = KVCacheCompressorWorker(config, self.attn_modules)
+        self.compressor = KVCacheCompressorWorker(config, self.attn_modules, self.kv_cache)
         if not self.enforce_eager:
             self.capture_cudagraph()
         torch.set_default_device("cpu")

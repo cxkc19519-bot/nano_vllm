@@ -147,6 +147,21 @@ To replace the earlier single-request observation, a paired end-to-end A/B bench
 
 The larger sample shows that the end-to-end benefit is concentrated in long-prefill TTFT, while decode metrics are nearly neutral at larger batches. All 20 single-request pairs produced identical token IDs. In sampled batched generation, small BF16 reduction-order differences can be amplified autoregressively, so this report must not be described as universal token-exact equivalence; Needle and LongBench remain the semantic-quality checks. Reproduce the paired benchmark with `bench_fused_rmsnorm_e2e.py`; the [raw report](benchmarks/kernels/fused_add_rmsnorm_e2e_9b_tp2_4090.json) contains mean, P50, P95, standard deviation, minimum, and maximum.
 
+### Triton Fused KV Cache Compaction
+
+The KV-compression copy path now uses a custom Triton kernel. It derives source and destination physical slots directly from the old Block Table, keep indices, and new Block Table, then copies K and V across every Full Attention layer in one launch. This replaces per-layer PyTorch gather/scatter operations and removes temporary tensors proportional to the retained KV size. Unsupported environments retain a semantically equivalent PyTorch fallback.
+
+The microbenchmark below uses the per-rank KV geometry of Qwen3.5-9B with TP=2: nine Full Attention layers, two KV heads per rank, head dimension 256, and BF16. It uses 30 warm-ups and 100 timed iterations; every result is bit-exact.
+
+| Source → retained tokens | PyTorch | Triton fused | Speedup | PyTorch temporary | Fused temporary |
+|--------------------------|--------:|-------------:|--------:|------------------:|----------------:|
+| 512 → 256 | 0.1819 ms | 0.0412 ms | 4.42x | 4.51 MiB | 0 MiB |
+| 2,048 → 1,024 | 0.1829 ms | 0.0412 ms | 4.44x | 18.02 MiB | 0 MiB |
+| 4,096 → 2,048 | 0.1948 ms | 0.0412 ms | 4.73x | 36.05 MiB | 0 MiB |
+| 8,192 → 4,096 | 0.3891 ms | 0.1679 ms | 2.32x | 72.09 MiB | 0 MiB |
+
+In a real Qwen3.5-9B run on 2 x RTX 4090 (TP=2) with four concurrent 2,048-token prompts and 128 output tokens, four KV-copy operations fell from 31.01 ms to 7.53 ms (4.12x, 75.71% lower). The complete compression path, including importance scoring, block allocation, and copying, fell from 74.04 ms to 49.61 ms (32.99% lower); both variants reclaimed 6,916 physical KV tokens. See the [operator report](benchmarks/kernels/fused_kv_compaction_9b_tp2_rank_4090.json) and the paired [PyTorch](benchmarks/kernels/kv_compaction_e2e_9b_tp2_pytorch_4090.json) / [fused](benchmarks/kernels/kv_compaction_e2e_9b_tp2_fused_4090.json) end-to-end reports.
+
 ### Concurrent Long-Context Compression Comparison
 
 The following paired run uses Qwen3.5-9B on 2 x RTX 4090 (TP=2), 4 concurrent requests, 2,048 prompt tokens and 128 output tokens per request. It uses the same 128-Block KV-cache budget for both variants.
