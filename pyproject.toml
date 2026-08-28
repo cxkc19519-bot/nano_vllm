@@ -21,7 +21,7 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage="https://github.com/GeeeekExplorer/nano-vllm"
+Homepage="https://github.com/cxkc19519-bot/nano_vllm"
 
 [tool.setuptools.packages.find]
 where = ["."]

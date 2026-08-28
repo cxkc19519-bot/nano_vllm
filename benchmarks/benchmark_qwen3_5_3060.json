@@ -1,0 +1,41 @@
+{
+  "benchmark": "nano-vllm-qwen3.5-hybrid",
+  "execution_mode": "eager",
+  "device": "NVIDIA GeForce RTX 3060",
+  "torch": "2.13.0+cu126",
+  "seed": 20260810,
+  "workload": {
+    "batch_size": 1,
+    "prompt_tokens_per_request": 512,
+    "output_tokens_per_request": 16
+  },
+  "metrics": {
+    "ttft_ms": 183.91,
+    "tpot_ms_per_decode_step": 44.564,
+    "decode_throughput_tokens_per_second": 22.44,
+    "decode_tokens_measured": 15
+  },
+  "kv_cache": {
+    "block_size_tokens": 256,
+    "total_blocks": 2600,
+    "peak_used_blocks": 3,
+    "peak_used_block_ratio": 0.001154,
+    "bytes_per_block": 3145728,
+    "peak_used_mib": 9.0,
+    "peak_physical_kv_tokens": 513
+  },
+  "compression": {
+    "count": 1,
+    "total_seconds": 0.032712300002458505,
+    "last_seconds": 0.032712300002458505,
+    "tokens_reclaimed": 353,
+    "skipped_no_free_blocks": 0
+  },
+  "compression_config": {
+    "threshold": 256,
+    "sink_tokens": 32,
+    "recent_window": 64,
+    "recent_queries": 4,
+    "top_k": 64
+  }
+}

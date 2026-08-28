@@ -1,8 +1,10 @@
 # Nano-vLLM（中文文档）
 
-一个从零实现的轻量级 vLLM 风格离线推理引擎。本分支在基础 Qwen3 支持之上，新增了 Qwen3.5 Hybrid 架构的运行时适配与可复现实验工具。
+基于 [nano-vLLM](https://github.com/GeeeekExplorer/nano-vllm) 的 Qwen3.5 Hybrid 推理与 KV Cache 优化项目，在原有引擎基础上实现混合架构适配、动态 KV 压缩、自定义 Triton 融合算子与可复现实验工具。
 
 [English](README.md) | [中文](README.zh-CN.md)
+
+本项目统一维护于 [cxkc19519-bot/nano_vllm](https://github.com/cxkc19519-bot/nano_vllm)（原 `nano_vllm_4090`）。原 `nano_vllm_3060` 的历史报告也已恢复到本仓库，3060 与 4090 的测试按硬件分别展示，不混为同一组性能对照。
 
 ## 已实现能力
 
@@ -12,12 +14,29 @@
 - KV Cache 压缩：超过阈值时保留 Attention Sink、最近滑动窗口，并从中间历史中依据最近 Query 的注意力分数选取 Top-K KV。
 - Chunked Prefill、Decode、抢占重算的状态流转测试。
 - `bench_qwen3_5.py`：可重复测量 TTFT、TPOT、Decode Throughput、KV Block 占用和压缩耗时。
+- 自定义 Triton Fused Add + RMSNorm、Fused KV Cache Compaction，以及对应的 PyTorch 回退路径。
+- Needle 检索与 LongBench-E 三任务子集评测，以及融合算子的微基准和端到端配对实验。
+
+## 项目内容索引
+
+| 内容 | 入口 |
+|------|------|
+| 模型、调度器、状态与 KV 管理实现 | [`nanovllm/`](nanovllm/) |
+| 可修改参数的一键运行脚本 | [`app.py`](app.py) |
+| 性能评测 | [`bench_qwen3_5.py`](bench_qwen3_5.py) |
+| 融合算子微基准与端到端对照 | [`bench_fused_add_rmsnorm.py`](bench_fused_add_rmsnorm.py)、[`bench_fused_kv_compaction.py`](bench_fused_kv_compaction.py)、[`bench_fused_rmsnorm_e2e.py`](bench_fused_rmsnorm_e2e.py) |
+| 长上下文质量评测 | [`eval_needle.py`](eval_needle.py)、[`eval_longbench.py`](eval_longbench.py) |
+| 全部保留报告、硬件分类与历史来源 | [`benchmarks/README.md`](benchmarks/README.md) |
+| 测试用例与实现规划 | [`tests/`](tests/)、[`implementation_plan.md`](implementation_plan.md) |
+| 语雀风格面试笔记 | [`ModelRunner 与 BlockManager`](docs/interview/modelrunner-blockmanager.md) |
 
 ## 环境安装
 
 推荐 Linux + NVIDIA GPU + CUDA 环境。以 Conda 环境为例：
 
 ```bash
+git clone https://github.com/cxkc19519-bot/nano_vllm.git
+cd nano_vllm
 conda activate nano-vllm
 pip install -e .
 ```
@@ -132,7 +151,7 @@ CUDA_VISIBLE_DEVICES=0,1 python bench_qwen3_5.py \
 
 ### RTX 4090 / Qwen3.5 大模型实测
 
-本仓库仅保留 RTX 4090 的测试记录。其中 `Qwen/Qwen3.5-9B` 使用两张 RTX 4090、TP=2；此前的 2B 和 4B 使用单张 RTX 4090。三组测试均采用 512 输入 token / 16 输出 token 的 eager Benchmark。
+本节展示 RTX 4090 的测试记录。其中 `Qwen/Qwen3.5-9B` 使用两张 RTX 4090、TP=2；此前的 2B 和 4B 使用单张 RTX 4090。三组测试均采用 512 输入 token / 16 输出 token 的 eager Benchmark。RTX 3060 的历史报告在下一节单独列出。
 
 | 模型 | 执行方式 | TTFT | TPOT | Decode Throughput | KV Block 峰值 | KV 峰值显存 | 压缩结果 |
 |------|----------|------|------|-------------------|---------------|-------------|----------|
@@ -141,6 +160,18 @@ CUDA_VISIBLE_DEVICES=0,1 python bench_qwen3_5.py \
 | Qwen3.5-9B | 2 x RTX 4090，TP=2 | 361.281 ms | 77.929 ms | 12.832 token/s | 3 / 64 | 24.0 MiB | 1 次，28.069 ms，回收 353 token |
 
 环境为 PyTorch 2.6.0+cu124、FlashAttention 2.7.4、Transformers 5.15.0。原始报告见 [2B 报告](benchmarks/benchmark_qwen3_5_2b_4090.json)、[4B 报告](benchmarks/benchmark_qwen3_5_4b_4090.json) 和 [9B 双卡报告](benchmarks/benchmark_qwen3_5_9b_tp2_4090.json)。共享 GPU 同时有其他任务运行，因此该结果用于功能和可复现性记录，不代表隔离环境下的峰值性能。
+
+### RTX 3060 12GB / 早期功能测试
+
+已从本地 Git 历史恢复原始 RTX 3060 报告，所有记录值保持不变。来源提交 `6a7671c` 的 README 将该次测试标记为 Qwen3.5-0.8B、Windows、PyTorch SDPA eager 回退路径（无原生 FlashAttention）；原 JSON 未记录模型 ID 和操作系统，因此这两项依据历史文档注明，并非从报告中独立核实。
+
+| 工作负载 | TTFT | TPOT | Decode Throughput | 已用 KV Block 峰值 | 已用块折算显存 | 压缩结果 |
+|----------|-----:|-----:|------------------:|------------------:|---------------:|----------|
+| 单请求，512 输入 / 16 输出 token | 183.910 ms | 44.564 ms | 22.440 token/s | 3 | 9.0 MiB | 1 次，32.712 ms，回收 353 个 KV token |
+
+随机种子为 20260810；压缩参数为阈值 256、Sink 32、最近窗口 64、最近 Query 4、Top-K 64。这次运行早于后续 Qwen3.5 数值对齐修复和 Triton 优化，属于早期功能与耗时记录，不代表当前版本已通过同样的正确性验证，也不是优化前后的 A/B 加速结果。9.0 MiB 是已用 KV 块折算值，不是整个 KV 池或 GPU 的实际分配显存；不要直接与 Linux/FlashAttention 下的 4090 测试横比。
+
+原始数据见 [3060 JSON 报告](benchmarks/benchmark_qwen3_5_3060.json)，来源与复跑命令见 [报告索引](benchmarks/README.md#rtx-3060-historical-report)。
 
 ### Triton Fused Add + RMSNorm
 
@@ -196,3 +227,7 @@ KV 压缩搬运路径新增自定义 Triton Kernel：直接根据旧 Block Table
 ## 当前边界
 
 项目重点是帮助理解推理引擎的核心机制，不等同于生产级 vLLM。建议在部署前对目标模型完成数值对齐、长上下文、并发请求、抢占与压缩场景验证。
+
+## 致谢
+
+本项目基于 [GeeeekExplorer/nano-vllm](https://github.com/GeeeekExplorer/nano-vllm) 扩展，保留原项目的 [MIT 许可证及版权声明](LICENSE)。页面中的实验结果均以本仓库明确标注的硬件和工作负载为准，不将上游项目的性能数据作为本项目成果。

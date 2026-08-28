@@ -2,26 +2,41 @@
 <img width="300" src="assets/logo.png">
 </p>
 
-<p align="center">
-<a href="https://trendshift.io/repositories/15323" target="_blank"><img src="https://trendshift.io/api/badge/repositories/15323" alt="GeeeekExplorer%2Fnano-vllm | Trendshift" style="width: 250px; height: 55px;" width="250" height="55"/></a>
-</p>
-
 # Nano-vLLM
 
-A lightweight vLLM implementation built from scratch.
+A Qwen3.5 Hybrid inference and KV-cache optimization project built on [nano-vLLM](https://github.com/GeeeekExplorer/nano-vllm).
 
 [English](README.md) | [中文](README.zh-CN.md)
 
+This is the unified [cxkc19519-bot/nano_vllm](https://github.com/cxkc19519-bot/nano_vllm) repository, formerly `nano_vllm_4090`. It includes the implementation, RTX 4090 evaluations, and the recovered RTX 3060 historical report from the former `nano_vllm_3060` project. Reports retain their original hardware labels; they are not a controlled cross-GPU comparison.
+
 ## Key Features
 
-* 🚀 **Fast offline inference** - Comparable inference speeds to vLLM
-* 📖 **Readable codebase** - Clean implementation in ~ 1,200 lines of Python code
-* ⚡ **Optimization Suite** - Prefix caching, Tensor Parallelism, Torch compilation, CUDA graph, etc.
+* **Qwen3.5 Hybrid runtime**: separate Gated DeltaNet / Full Attention paths, recurrent/conv state slots, logical-token / physical-KV bookkeeping, and chunked prefill.
+* **Dynamic KV compression**: retain attention sinks and the recent window, and select important historical KV using recent-query attention scores.
+* **Custom Triton kernels**: Fused Add + RMSNorm and Fused KV Cache Compaction, with PyTorch fallbacks.
+* **Evaluation**: latency/throughput/cache benchmarks, paired kernel measurements, Needle retrieval and a labeled LongBench-E subset.
+* **Inherited engine infrastructure**: tensor parallelism, paged KV storage and CUDA Graph support. Prefix-cache reuse is disabled for Qwen3.5 Hybrid until DeltaNet state snapshots are supported.
+
+### Project Contents
+
+| Area | Entry point |
+|------|-------------|
+| Runtime, scheduler, cache and model implementation | [`nanovllm/`](nanovllm/) |
+| Configurable benchmark launcher | [`app.py`](app.py) |
+| Performance benchmark | [`bench_qwen3_5.py`](bench_qwen3_5.py) |
+| Kernel and paired end-to-end benchmarks | [`bench_fused_add_rmsnorm.py`](bench_fused_add_rmsnorm.py), [`bench_fused_kv_compaction.py`](bench_fused_kv_compaction.py), [`bench_fused_rmsnorm_e2e.py`](bench_fused_rmsnorm_e2e.py) |
+| Long-context quality evaluation | [`eval_needle.py`](eval_needle.py), [`eval_longbench.py`](eval_longbench.py) |
+| All retained reports, with hardware and scope notes | [`benchmarks/README.md`](benchmarks/README.md) |
+| Tests and implementation plan | [`tests/`](tests/), [`implementation_plan.md`](implementation_plan.md) |
+| Interview notes (Chinese) | [`ModelRunner and BlockManager`](docs/interview/modelrunner-blockmanager.md) |
 
 ## Installation
 
 ```bash
-pip install git+https://github.com/GeeeekExplorer/nano-vllm.git
+git clone https://github.com/cxkc19519-bot/nano_vllm.git
+cd nano_vllm
+pip install -e .
 ```
 
 ## Model Download
@@ -95,7 +110,7 @@ These percentages describe reclaimed physical KV tokens after compaction, not pe
 
 ### RTX 4090 / Qwen3.5 Larger-Model Validation
 
-This repository contains only RTX 4090 validation records. The `Qwen/Qwen3.5-9B` run uses tensor parallelism across two RTX 4090 GPUs; the earlier 2B and 4B runs use one RTX 4090.
+This section contains RTX 4090 validation records. The `Qwen/Qwen3.5-9B` run uses tensor parallelism across two RTX 4090 GPUs; the earlier 2B and 4B runs use one RTX 4090. The RTX 3060 historical record is documented separately below.
 
 - Hardware: NVIDIA GeForce RTX 4090; 9B uses 2 GPUs (TP=2)
 - Software: PyTorch 2.6.0+cu124, FlashAttention 2.7.4, Transformers 5.15.0
@@ -121,6 +136,18 @@ CUDA_VISIBLE_DEVICES=0,1 python bench_qwen3_5.py \
 ```
 
 Source reports: [`benchmark_qwen3_5_2b_4090.json`](benchmarks/benchmark_qwen3_5_2b_4090.json), [`benchmark_qwen3_5_4b_4090.json`](benchmarks/benchmark_qwen3_5_4b_4090.json), and [`benchmark_qwen3_5_9b_tp2_4090.json`](benchmarks/benchmark_qwen3_5_9b_tp2_4090.json). These were eager-mode functional benchmarks; treat them as reproducibility records, not isolated peak-performance claims.
+
+### RTX 3060 12GB / Historical Validation
+
+The original RTX 3060 report has been restored without changing its recorded values. The README at source commit `6a7671c` identifies Qwen3.5-0.8B, Windows, and the eager PyTorch SDPA fallback (no native FlashAttention). The JSON itself does not record the model ID or operating system, so those details are historical documentation rather than independently verified report metadata.
+
+| Workload | TTFT | TPOT | Decode Throughput | Peak used KV Blocks | Used-block memory equivalent | Compression |
+|----------|-----:|-----:|------------------:|--------------------:|-----------------------------:|-------------|
+| 1 request, 512 input / 16 output tokens | 183.910 ms | 44.564 ms | 22.440 tokens/s | 3 | 9.0 MiB | 1 operation, 32.712 ms, 353 KV tokens reclaimed |
+
+The report records seed 20260810 and compression settings: threshold 256, sink 32, recent window 64, recent queries 4, Top-K 64. It predates the subsequent Qwen3.5 numerical-alignment fixes and Triton optimizations, so it is an early functional/timing record, not a current correctness certification or an A/B speedup result. The 9.0 MiB value describes used KV blocks, not total allocated GPU memory. Do not compare it directly with the Linux/FlashAttention 4090 runs.
+
+See the [original JSON](benchmarks/benchmark_qwen3_5_3060.json) and [provenance and rerun instructions](benchmarks/README.md#rtx-3060-historical-report).
 
 ### Triton Fused Add + RMSNorm
 
@@ -174,6 +201,6 @@ The following paired run uses Qwen3.5-9B on 2 x RTX 4090 (TP=2), 4 concurrent re
 The physical-KV peak is 5.75% lower with compression. Peak block usage remains 36 because the metric includes the initial full prefill before compaction; this paired test must not be described as a peak-Block reduction. See the [baseline report](benchmarks/qwen3_5_9b_tp2_4090_b4_p2048_o128_baseline.json) and [compressed report](benchmarks/qwen3_5_9b_tp2_4090_b4_p2048_o128_compressed.json). Results come from a shared server and are reproducibility data rather than an isolated performance claim.
 
 
-## Star History
+## Acknowledgments
 
-[![Star History Chart](https://api.star-history.com/svg?repos=GeeeekExplorer/nano-vllm&type=Date)](https://www.star-history.com/#GeeeekExplorer/nano-vllm&Date)
+Based on [GeeeekExplorer/nano-vllm](https://github.com/GeeeekExplorer/nano-vllm). The upstream MIT license and attribution are retained in [LICENSE](LICENSE). Performance results on this page refer to the explicitly labeled experiments in this repository, not upstream benchmark claims.
